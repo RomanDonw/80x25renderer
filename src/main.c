@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include <glad.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <getopt.h>
@@ -29,12 +29,21 @@ int main(int argc, char *argv[])
 
     if (!glfwInit()) { puts("failed to initialize GLFW"); return 1; }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     printf("window width: %i, window height: %i\n", winw, winh);
 
     GLFWwindow *w;
-    if (!(w = glfwCreateWindow(winw, winh, wintitle, NULL, NULL)))
+    if (!(w = glfwCreateWindow(800, 600, "gay", NULL, NULL)))
     { puts("error creating window"); glfwTerminate(); return 1; }
     glfwMakeContextCurrent(w);
+
+    if (!gladLoadGL(glfwGetProcAddress))
+    { puts("error loading OpenGL context through GLAD"); glfwTerminate(); return 1; }
+
+    glViewport(0, 0, winw, winh);
 
     while (!glfwWindowShouldClose(w))
     {
