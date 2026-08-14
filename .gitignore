@@ -1,2 +1,4 @@
 /build
 .*.swp
+*.code-workspace
+/.vscode
