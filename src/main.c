@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 #include "shaders.h"
 
@@ -90,13 +91,42 @@ int main(int argc, char *argv[])
     }
 
     // ==========================================================================================
+    
+    const float vertices[] =
+    {
+        -1.0, -1.0, 0.0,
+        1.0, -1.0, 0.0,
+        -1.0, 1.0, 0.0,
+        1.0, 1.0, 0.0
+    };
+    const unsigned int indices[] =
+    {
+        0, 1, 3,
+        0, 2, 3
+    };
+    
+    GLuint VAO, VBO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, NULL);
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // ==========================================================================================
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     while (!glfwWindowShouldClose(w))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        
+        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, NULL);
 
         glfwSwapBuffers(w);
         glfwPollEvents();
