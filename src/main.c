@@ -7,8 +7,6 @@
 
 #include "shaders.h"
 
-static const char *wintitle = "80x25 CGA Display";
-
 static void frbuffresz_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
 
 static bool isshadercompilationsuccessful(GLuint shader);
@@ -57,6 +55,7 @@ int main(int argc, char *argv[])
 
     // ==========================================================================================
     
+    GLuint prog;
     {
         GLuint vs = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vs, 1, &vertexshadersource, NULL);
@@ -82,11 +81,31 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        GLuint prog = glCreateProgram();
+        prog = glCreateProgram();
         glAttachShader(prog, vs);
         glAttachShader(prog, fs);
         glLinkProgram(prog);
         glUseProgram(prog);
+
+        GLint result;
+        glGetProgramiv(prog, GL_LINK_STATUS, &result);
+        if (!result)
+        {
+            GLint length;
+            glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &length);
+            if (length > 0)
+            {
+                char *log = malloc(length);
+                if (log)
+                {
+                    glGetProgramInfoLog(prog, length, NULL, log);
+                    printf("error linking shader program:\n%s\n", log);
+                    free(log);
+                }
+                glfwTerminate();
+                return 1;
+            }
+        }
 
     }
 
