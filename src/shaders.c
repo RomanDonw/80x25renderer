@@ -3,7 +3,7 @@
 const char *vertexshadersource = R"(
     #version 330 core
 
-    layout (location = 0) in vec3 _vpos;
+    layout (location = 0) in vec2 _vpos;
     
     out vec2 vpos;
 
