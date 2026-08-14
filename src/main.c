@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
         if (!isshadercompilationsuccessful(vs))
         {
             char *log = getshadercompilelog(vs);
-            printf("error compiling vertex shader:\n%s\n");
+            printf("error compiling vertex shader:\n%s\n", log);
             free(log);
             glfwTerminate();
             return 1;
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
         if (!isshadercompilationsuccessful(fs))
         {
             char *log = getshadercompilelog(fs);
-            printf("error compiling fragment shader:\n%s\n");
+            printf("error compiling fragment shader:\n%s\n", log);
             free(log);
             glfwTerminate();
             return 1;
