@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     memset(vmemdata, 0, 80 * 25 * 2);
 
     //vmemdata[0] = '0' | (0b11001111 << 8);
-    vmem_clear(vmemdata, 0b00011111);
+    vmem_clear(vmemdata, 0b00000111);
     vmem_writecs(vmemdata, 0, "C:\\DOS>_");
 
     GLuint vmem;
@@ -224,26 +224,25 @@ int main(int argc, char *argv[])
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, font);
 
-    //GLint u_blinkstate = glGetUniformLocation(prog, "blinkstate");
+    GLint u_curblinkstate = glGetUniformLocation(prog, "curblinkstate");
+    GLint u_textblinkstate = glGetUniformLocation(prog, "textblinkstate");
+
+    GLint u_curpos = glGetUniformLocation(prog, "curpos");
+    GLint u_curbounds = glGetUniformLocation(prog, "curbounds");
+
+    glUniform2ui(u_curpos, 7, 0);
+    glUniform2ui(u_curbounds, 0, 1);
 
     //glClearColor(0.0, 0.0, 0.0, 1.0);
-    //bool blinkstate = false;
 
     monotime_t currtime;
     while (!glfwWindowShouldClose(w))
     {
         //glClear(GL_COLOR_BUFFER_BIT);
-        /*
-        printf("%llu\n", (unsigned long long)round((glfwGetTime() * 1000)) % 500);
-        if (false)
-        {
-            blinkstate = !blinkstate;
-            puts(blinkstate ? "true" : "false");
-            glUniform1ui(u_blinkstate, blinkstate);
-        }
-        */
         
-        //if (!monotime_now(&currtime)) { puts("error getting monotonic time in render loop"); break; }
+        if (!monotime_now(&currtime)) { puts("error getting monotonic time in render loop"); break; }
+        glUniform1ui(u_curblinkstate, (bool)((currtime / 266666667) % 2));
+        glUniform1ui(u_textblinkstate, (bool)((currtime / 533333333) % 2));
 
         glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, NULL);
 
