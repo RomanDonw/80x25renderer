@@ -18,6 +18,8 @@ static void frbuffresz_callback(GLFWwindow *window, int width, int height)
 static bool isshadercompilationsuccessful(GLuint shader);
 static GLchar *getshadercompilelog(GLuint shader);
 
+#define GLDEBUG() (printf("OpenGL error %u at %llu:%s in function %s\n", glGetError(), __LINE__, __FILE__, __func__))
+
 int main(int argc, char *argv[])
 {
     void *fontbitmap = NULL;
@@ -82,8 +84,19 @@ int main(int argc, char *argv[])
     
     GLuint font;
     glGenTextures(1, &font);
+    GLDEBUG();
     glBindTexture(GL_TEXTURE_1D, font);
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8, 16 * 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, fontbitmap);
+    GLDEBUG();
+    puts(fontbitmap);
+
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16 * 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, fontbitmap);
+    GLDEBUG();
+
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
     free(fontbitmap);
 
     // ==========================================================================================
@@ -187,7 +200,7 @@ int main(int argc, char *argv[])
     {
         register unsigned long long cellwidth = fbwidth / 80;
         register unsigned long long cellheight = fbheight / 25;
-        //printf("%llu:%llu\n", cellwidth, cellheight);
+        printf("%llu:%llu\n", cellwidth, cellheight);
         if (!cellwidth || !cellheight) goto skipdraw;
 
         glUniform2ui(unfs_screensize, fbwidth, fbheight);
