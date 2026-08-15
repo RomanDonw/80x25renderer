@@ -84,19 +84,14 @@ int main(int argc, char *argv[])
     
     GLuint font;
     glGenTextures(1, &font);
-    GLDEBUG();
     glBindTexture(GL_TEXTURE_1D, font);
-    GLDEBUG();
-    puts(fontbitmap);
-
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16 * 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, fontbitmap);
-    GLDEBUG();
 
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16 * 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, fontbitmap);
     free(fontbitmap);
 
     // ==========================================================================================
@@ -182,14 +177,6 @@ int main(int argc, char *argv[])
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // ==========================================================================================
-    
-    GLint unfs_screensize = glGetUniformLocation(prog, "scrsize");
-    //if (unfs_screensize < 0) { puts("unable to get location of uniform variable \"scrsize\""); goto errorquit_glfw; }
-
-    GLint unfs_cellsize = glGetUniformLocation(prog, "cellsize");
-    //if (unfs_cellsize < 0) { puts("unable to get location of uniform variable \"cellsize\""); goto errorquit_glfw; }
-    
-    GLint unfs_fontscalefactor = glGetUniformLocation(prog, "fontscalefactor");
 
     glUniform1i(glGetUniformLocation(prog, "font"), 0);
     glBindTexture(GL_TEXTURE_1D, font);
@@ -198,15 +185,6 @@ int main(int argc, char *argv[])
     glClearColor(0.0, 0.0, 0.0, 1.0);
     while (!glfwWindowShouldClose(w))
     {
-        register unsigned long long cellwidth = fbwidth / 80;
-        register unsigned long long cellheight = fbheight / 25;
-        printf("%llu:%llu\n", cellwidth, cellheight);
-        if (!cellwidth || !cellheight) goto skipdraw;
-
-        glUniform2ui(unfs_screensize, fbwidth, fbheight);
-        glUniform2ui(unfs_cellsize, cellwidth, cellheight);
-        glUniform2ui(unfs_fontscalefactor, cellwidth / 8, cellheight / 16);
-
         glClear(GL_COLOR_BUFFER_BIT);
 
         glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, NULL);
