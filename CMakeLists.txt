@@ -9,4 +9,5 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 unset(SOURCES)
 
 find_package(glfw3 3.3 REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad)
+find_package(libmonotime REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad libmonotime::monotime)

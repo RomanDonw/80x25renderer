@@ -7,8 +7,10 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
+#include <libmonotime.h>
 
 #include "shaders.h"
+#include "renderfuncs.h"
 
 static unsigned int fbwidth, fbheight;
 static void frbuffresz_callback(GLFWwindow *window, int width, int height)
@@ -26,6 +28,8 @@ static void applytex2Dlinearfilts(void);
 
 int main(int argc, char *argv[])
 {
+    if (!monotime_now(NULL)) { puts("monotonic system timer doesn't supported on this platform"); return 1; }
+
     void *fontbitmap = NULL;
     int winw = 800, winh = 600;
 
@@ -97,7 +101,9 @@ int main(int argc, char *argv[])
     if (!vmemdata) { puts("error allocating video memory buffer in RAM"); goto errorquit_afterinitglfw; }
     memset(vmemdata, 0, 80 * 25 * 2);
 
-    *vmemdata = 'A' | (0b11001111 << 8);
+    //vmemdata[0] = '0' | (0b11001111 << 8);
+    vmem_clear(vmemdata, 0b00011111);
+    vmem_writecs(vmemdata, 0, "C:\\DOS>_");
 
     GLuint vmem;
     glGenTextures(1, &vmem);
@@ -223,6 +229,7 @@ int main(int argc, char *argv[])
     //glClearColor(0.0, 0.0, 0.0, 1.0);
     //bool blinkstate = false;
 
+    monotime_t currtime;
     while (!glfwWindowShouldClose(w))
     {
         //glClear(GL_COLOR_BUFFER_BIT);
@@ -235,6 +242,8 @@ int main(int argc, char *argv[])
             glUniform1ui(u_blinkstate, blinkstate);
         }
         */
+        
+        //if (!monotime_now(&currtime)) { puts("error getting monotonic time in render loop"); break; }
 
         glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, NULL);
 
