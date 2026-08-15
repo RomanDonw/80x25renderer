@@ -4,6 +4,9 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
 
 #include "shaders.h"
 
@@ -17,6 +20,7 @@ static void frbuffresz_callback(GLFWwindow *window, int width, int height)
 
 static bool isshadercompilationsuccessful(GLuint shader);
 static GLchar *getshadercompilelog(GLuint shader);
+static void applytex2Dlinearfilts(void);
 
 #define GLDEBUG() (printf("OpenGL error %u at %llu:%s in function %s\n", glGetError(), __LINE__, __FILE__, __func__))
 
@@ -72,11 +76,11 @@ int main(int argc, char *argv[])
 
     GLFWwindow *w;
     if (!(w = glfwCreateWindow(800, 600, "80x25 CGA renderer", NULL, NULL)))
-    { puts("error creating window"); free(fontbitmap); goto errorquit_glfw; }
+    { puts("error creating window"); free(fontbitmap); goto errorquit_afterinitglfw; }
     glfwMakeContextCurrent(w);
 
     if (!gladLoadGL(glfwGetProcAddress))
-    { puts("error loading OpenGL context through GLAD"); free(fontbitmap); goto errorquit_glfw;  }
+    { puts("error loading OpenGL context through GLAD"); free(fontbitmap); goto errorquit_afterinitglfw; }
 
     glfwSetFramebufferSizeCallback(w, frbuffresz_callback);
 
@@ -85,14 +89,21 @@ int main(int argc, char *argv[])
     GLuint font;
     glGenTextures(1, &font);
     glBindTexture(GL_TEXTURE_2D, font);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
+    applytex2Dlinearfilts();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, 16, 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, fontbitmap);
     free(fontbitmap);
+    
+    uint16_t *vmemdata = malloc(80 * 25 * 2);
+    if (!vmemdata) { puts("error allocating video memory buffer in RAM"); goto errorquit_afterinitglfw; }
+    memset(vmemdata, 0, 80 * 25 * 2);
+
+    *vmemdata = 'A' | (0b11001111 << 8);
+
+    GLuint vmem;
+    glGenTextures(1, &vmem);
+    glBindTexture(GL_TEXTURE_2D, vmem);
+    applytex2Dlinearfilts();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8UI, 80, 25, 0, GL_RG_INTEGER, GL_UNSIGNED_BYTE, vmemdata);
 
     // ==========================================================================================
     
@@ -106,7 +117,7 @@ int main(int argc, char *argv[])
             char *log = getshadercompilelog(vs);
             printf("error compiling vertex shader:\n%s\n", log);
             free(log);
-            goto errorquit_glfw;
+            goto errorquit_aftervmemalloc;
         }
 
         GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
@@ -117,7 +128,7 @@ int main(int argc, char *argv[])
             char *log = getshadercompilelog(fs);
             printf("error compiling fragment shader:\n%s\n", log);
             free(log);
-            goto errorquit_glfw;
+            goto errorquit_aftervmemalloc;
         }
 
         prog = glCreateProgram();
@@ -141,7 +152,7 @@ int main(int argc, char *argv[])
                     printf("error linking shader program:\n%s\n", log);
                     free(log);
                 }
-                goto errorquit_glfw;
+                goto errorquit_aftervmemalloc;
             }
         }
 
@@ -178,13 +189,52 @@ int main(int argc, char *argv[])
 
     // ==========================================================================================
 
-    glUniform1i(glGetUniformLocation(prog, "font"), 0);
+    const float colors[] =
+    {
+        0, 0, 0, // black.
+        0, 0, 0xAA / 255.0, // dark blue.
+        0, 0xAA / 255.0, 0, // dark green.
+        0, 0xAA / 255.0, 0xAA / 255.0, // dark cyan.
+        0xAA / 255.0, 0, 0, // dark red.
+        0xAA / 255.0, 0, 0xAA / 255.0, // dark magenta.
+        0xAA / 255.0, 0x55 / 255.0, 0, // dark yellow/brown.
+        0xAA / 255.0, 0xAA / 255.0, 0xAA / 255.0, // gray.
+
+        0x55 / 255.0, 0x55 / 255.0, 0x55 / 255.0, // dark gray.
+        0x55 / 255.0, 0x55 / 255.0, 1, // light blue.
+        0x55 / 255.0, 1, 0x55 / 255.0, // light green.
+        0x55 / 255.0, 1, 1, // light cyan.
+        1, 0x55 / 255.0, 0x55 / 255.0, // light red.
+        1, 0x55 / 255.0, 1, // light magenta.
+        1, 1, 0x55 / 255.0, // light yellow.
+        1, 1, 1 // light white.
+    };
+    glUniform3fv(glGetUniformLocation(prog, "colors"), 16, colors);
+
+    glUniform1i(glGetUniformLocation(prog, "vmem"), 0);
     glActiveTexture(GL_TEXTURE0);
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glUniform1i(glGetUniformLocation(prog, "font"), 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, font);
+
+    //GLint u_blinkstate = glGetUniformLocation(prog, "blinkstate");
+
+    //glClearColor(0.0, 0.0, 0.0, 1.0);
+    //bool blinkstate = false;
+
     while (!glfwWindowShouldClose(w))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT);
+        /*
+        printf("%llu\n", (unsigned long long)round((glfwGetTime() * 1000)) % 500);
+        if (false)
+        {
+            blinkstate = !blinkstate;
+            puts(blinkstate ? "true" : "false");
+            glUniform1ui(u_blinkstate, blinkstate);
+        }
+        */
 
         glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, NULL);
 
@@ -193,10 +243,13 @@ int main(int argc, char *argv[])
         glfwPollEvents();
     }
 
+    free(vmemdata);
     glfwTerminate();
     return 0;
 
-    errorquit_glfw:
+    errorquit_aftervmemalloc:
+        free(vmemdata);
+    errorquit_afterinitglfw:
         glfwTerminate();
     return 1;
 }
@@ -217,4 +270,12 @@ static char *getshadercompilelog(GLuint shader)
     char *ret = malloc(length);
     glGetShaderInfoLog(shader, length, NULL, ret);
     return ret;
+}
+
+static void applytex2Dlinearfilts(void)
+{
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
