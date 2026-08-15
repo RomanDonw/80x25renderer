@@ -81,17 +81,17 @@ int main(int argc, char *argv[])
     glfwSetFramebufferSizeCallback(w, frbuffresz_callback);
 
     // ==========================================================================================
-    
+
     GLuint font;
     glGenTextures(1, &font);
-    glBindTexture(GL_TEXTURE_1D, font);
+    glBindTexture(GL_TEXTURE_2D, font);
 
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16 * 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, fontbitmap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, 16, 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, fontbitmap);
     free(fontbitmap);
 
     // ==========================================================================================
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
         0, 1, 3,
         0, 2, 3
     };
-    
+
     GLuint VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -179,7 +179,6 @@ int main(int argc, char *argv[])
     // ==========================================================================================
 
     glUniform1i(glGetUniformLocation(prog, "font"), 0);
-    glBindTexture(GL_TEXTURE_1D, font);
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.0, 0.0, 0.0, 1.0);

@@ -18,7 +18,7 @@ const char *fragmentshadersource =
 
     "in vec2 scrcoord;\n"
     "out vec4 FragColor;\n"
-    "uniform usampler1D font;\n"
+    "uniform usampler2D font;\n"
 
     "void main(void)\n"
     "{\n"
@@ -30,7 +30,7 @@ const char *fragmentshadersource =
         "uint bitindex = uint(7) - clamp(uint(incell.x * 8u), 0u, 7u);\n"
         
         "uint glyphindex = (cell.y * 80u + cell.x) % 256u;\n"
-        "uint glyphrow = uvec4(texelFetch(font, int(glyphindex * 16u + fontrow), 0)).r;\n"
+        "uint glyphrow = uvec4(texelFetch(font, ivec2(fontrow, glyphindex), 0)).r;\n"
         "FragColor = ((uint(glyphrow) & (1u << uint(bitindex))) != 0u) ? vec4(0.5, 0.5, 0.5, 1.0) : vec4(0.0, 0.0, 0.0, 1.0);\n"
     "}"
 ;
