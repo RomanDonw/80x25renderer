@@ -185,6 +185,15 @@ int main(int argc, char *argv[])
     glClearColor(0.0, 0.0, 0.0, 1.0);
     while (!glfwWindowShouldClose(w))
     {
+        register unsigned long long cellwidth = fbwidth / 80;
+        register unsigned long long cellheight = fbheight / 25;
+        //printf("%llu:%llu\n", cellwidth, cellheight);
+        if (!cellwidth || !cellheight) goto skipdraw;
+
+        glUniform2ui(unfs_screensize, fbwidth, fbheight);
+        glUniform2ui(unfs_cellsize, cellwidth, cellheight);
+        glUniform2ui(unfs_fontscalefactor, cellwidth / 8, cellheight / 16);
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, NULL);
