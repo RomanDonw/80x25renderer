@@ -12,19 +12,19 @@ void vmem_setattr(uint16_t *vmem, uint16_t offset, uint16_t count, uint8_t attri
     for (register size_t i = 0; i < count; i++) vmem[offset + i] = offattr;
 }
 
-void vmem_writeas(uint16_t *vmem, uint16_t offset, uint8_t attribute, const char *str)
+void vmem_writeas(uint16_t *vmem, uint16_t offset, uint8_t attribute, const unsigned char *str)
 {
-    register char c;
+    register unsigned char c;
     register uint16_t offattr = attribute << 8;
     register size_t i = 0;
     while ((c = str[i]) != 0) { vmem[offset + i++] = offattr | c; }
 }
 
-void vmem_writecs(uint16_t *vmem, uint16_t offset, const char *str)
+void vmem_writecs(uint16_t *vmem, uint16_t offset, const unsigned char *str)
 {
-    register char c;
+    register unsigned char c;
     register size_t i = 0;
-    while ((c = str[i]) != 0) { vmem[offset + i] = vmem[offset + i] & 0xFF00 | c; i++; }
+    while ((c = str[i]) != 0) { vmem[offset + i] = (vmem[offset + i] & 0xFF00) | c; i++; }
 }
 
 void vmem_writeacs(uint16_t *vmem, uint16_t offset, const uint16_t *str)

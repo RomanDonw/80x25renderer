@@ -6,8 +6,8 @@
 
 void vmem_clear(uint16_t *vmem, uint8_t attribute);
 void vmem_setattr(uint16_t *vmem, uint16_t offset, uint16_t count, uint8_t attribute);
-void vmem_writeas(uint16_t *vmem, uint16_t offset, uint8_t attribute, const char *str);
-void vmem_writecs(uint16_t *vmem, uint16_t offset, const char *str);
+void vmem_writeas(uint16_t *vmem, uint16_t offset, uint8_t attribute, const unsigned char *str);
+void vmem_writecs(uint16_t *vmem, uint16_t offset, const unsigned char *str);
 void vmem_writeacs(uint16_t *vmem, uint16_t offset, const uint16_t *str);
 
 #endif
