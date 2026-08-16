@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
 
     glfwSetWindowSizeLimits(w, 80 * 8, 25 * 16, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwSetFramebufferSizeCallback(w, frbuffresz_callback);
+    glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     // ==========================================================================================
 
