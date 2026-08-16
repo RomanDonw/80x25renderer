@@ -41,11 +41,10 @@ const char *fragmentshadersource =
         "uvec4 chardata = uvec4(texelFetch(vmem, ivec2(cell.x, cell.y), 0));\n"
         "uint glyphrow = uvec4(texelFetch(font, ivec2(fontrow, chardata.r & 0xFFu), 0)).r & 0xFFu;\n"
 
-        "vec4 fgcolor = vec4(colors[chardata.g & 0xFu], 1);\n"
+        "bool curdispflag = curbounds.x > curbounds.y ? fontrow < curbounds.y || fontrow > curbounds.x : fontrow >= curbounds.x && fontrow <= curbounds.y;\n"
         "FragColor = (uint(glyphrow) & (1u << uint(bitindex))) != 0u && !(textblinkstate && ((chardata.g & (1u << 7u)) != 0u)) ||"
-                    "(curenabled && curblinkstate && cell == curpos && fontrow >= min(curbounds.x, curbounds.y) && fontrow <= max(curbounds.x, curbounds.y))"
-                "? fgcolor"
-                ": vec4(colors[(chardata.g >> 4) & 7u], 1)"
-            ";\n"
+                        "(curenabled && curblinkstate && cell == curpos && curdispflag)"
+                "? vec4(colors[chardata.g & 0xFu], 1)"
+                ": vec4(colors[(chardata.g >> 4) & 7u], 1);\n"
     "}"
 ;

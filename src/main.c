@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
     if (!gladLoadGL(glfwGetProcAddress))
     { puts("error loading OpenGL context through GLAD"); free(fontbitmap); goto errorquit_afterinitglfw; }
 
+    glfwSetWindowSizeLimits(w, 80 * 8, 25 * 16, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwSetFramebufferSizeCallback(w, frbuffresz_callback);
 
     // ==========================================================================================
@@ -101,8 +102,10 @@ int main(int argc, char *argv[])
     if (!vmemdata) { puts("error allocating video memory buffer in RAM"); goto errorquit_afterinitglfw; }
     memset(vmemdata, 0, 80 * 25 * 2);
     
-    vmem_clear(vmemdata, 0b00000111);
-    vmem_writecs(vmemdata, 0, "C:\\DOS>_");
+    vmem_clear(vmemdata, 7);
+    vmem_writecs(vmemdata, 0, "Microsoft(R) MS-DOS(R) Version 6.22");
+    vmem_writecs(vmemdata, 80 + 13, "(C)Copyright Microsoft Corp 1981-1994");
+    vmem_writecs(vmemdata, 80 * 3, "C:\\DOS>");
 
     GLuint vmem;
     glGenTextures(1, &vmem);
@@ -231,8 +234,8 @@ int main(int argc, char *argv[])
     GLint u_curblinkstate = glGetUniformLocation(prog, "curblinkstate");
 
     glUniform1ui(u_curenabled, true);
-    glUniform2ui(u_curpos, 7, 0);
-    glUniform2ui(u_curbounds, 0, 15);
+    glUniform2ui(u_curpos, 7, 3);
+    glUniform2ui(u_curbounds, 14, 15);
 
     monotime_t currtime;
     while (!glfwWindowShouldClose(w))
