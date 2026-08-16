@@ -1,4 +1,9 @@
 /build
+!/build/
+/build/*
+!/build/res
+
 .*.swp
 *.code-workspace
 /.vscode
+/
