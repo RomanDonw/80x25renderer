@@ -19,9 +19,10 @@ const char *fragmentshadersource =
     "in vec2 scrcoord;\n"
     "out vec4 FragColor;\n"
 
+    "uniform bool curenabled;\n"
     "uniform uvec2 curpos;\n"
-    "uniform bool curblinkstate;\n"
     "uniform uvec2 curbounds;\n"
+    "uniform bool curblinkstate;\n"
 
     "uniform bool textblinkstate;\n"
     "uniform vec3 colors[16];\n"
@@ -47,7 +48,7 @@ const char *fragmentshadersource =
         //"if ((uint(chardata & (1u << 7u)) != 0u) && (blinkstate != 0u)) render = false;\n"
         //((uint(glyphrow) & (1u << uint(bitindex))) != 0u) && textblinkstate ||
         "FragColor = (uint(glyphrow) & (1u << uint(bitindex))) != 0u && !(textblinkstate && ((chardata.g & (1u << 7u)) != 0u)) ||"
-                    "(curblinkstate && cell == curpos && fontrow >= min(curbounds.x, curbounds.y) && fontrow <= max(curbounds.x, curbounds.y))"
+                    "(curenabled && curblinkstate && cell == curpos && fontrow >= min(curbounds.x, curbounds.y) && fontrow <= max(curbounds.x, curbounds.y))"
                 "? fgcolor"
                 ": vec4(colors[(chardata.g >> 4) & 7u], 1)"
             ";\n"

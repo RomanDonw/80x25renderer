@@ -224,14 +224,16 @@ int main(int argc, char *argv[])
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, font);
 
-    GLint u_curblinkstate = glGetUniformLocation(prog, "curblinkstate");
     GLint u_textblinkstate = glGetUniformLocation(prog, "textblinkstate");
 
+    GLint u_curenabled = glGetUniformLocation(prog, "curenabled");
     GLint u_curpos = glGetUniformLocation(prog, "curpos");
     GLint u_curbounds = glGetUniformLocation(prog, "curbounds");
+    GLint u_curblinkstate = glGetUniformLocation(prog, "curblinkstate");
 
+    glUniform1ui(u_curenabled, true);
     glUniform2ui(u_curpos, 7, 0);
-    glUniform2ui(u_curbounds, 0, 1);
+    glUniform2ui(u_curbounds, 0, 15);
 
     //glClearColor(0.0, 0.0, 0.0, 1.0);
 
