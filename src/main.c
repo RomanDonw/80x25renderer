@@ -100,8 +100,7 @@ int main(int argc, char *argv[])
     uint16_t *vmemdata = malloc(80 * 25 * 2);
     if (!vmemdata) { puts("error allocating video memory buffer in RAM"); goto errorquit_afterinitglfw; }
     memset(vmemdata, 0, 80 * 25 * 2);
-
-    //vmemdata[0] = '0' | (0b11001111 << 8);
+    
     vmem_clear(vmemdata, 0b00000111);
     vmem_writecs(vmemdata, 0, "C:\\DOS>_");
 
@@ -235,13 +234,9 @@ int main(int argc, char *argv[])
     glUniform2ui(u_curpos, 7, 0);
     glUniform2ui(u_curbounds, 0, 15);
 
-    //glClearColor(0.0, 0.0, 0.0, 1.0);
-
     monotime_t currtime;
     while (!glfwWindowShouldClose(w))
-    {
-        //glClear(GL_COLOR_BUFFER_BIT);
-        
+    {   
         if (!monotime_now(&currtime)) { puts("error getting monotonic time in render loop"); break; }
         glUniform1ui(u_curblinkstate, (bool)((currtime / 266666667) % 2));
         glUniform1ui(u_textblinkstate, (bool)((currtime / 533333333) % 2));
