@@ -22,9 +22,12 @@ static void frbuffresz_callback(GLFWwindow *window, int width, int height)
 
 static bool isshadercompilationsuccessful(GLuint shader);
 static GLchar *getshadercompilelog(GLuint shader);
-static void applytex2Dlinearfilts(void);
+static void applytexlinearfilts(GLenum target);
 
 #define GLDEBUG() (printf("OpenGL error %u at %llu:%s in function %s\n", glGetError(), __LINE__, __FILE__, __func__))
+
+#define MINWINWIDTH 640
+#define MINWINHEIGHT 400
 
 int main(int argc, char *argv[])
 {
@@ -79,14 +82,14 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow *w;
-    if (!(w = glfwCreateWindow(800, 600, "80x25 CGA renderer", NULL, NULL)))
+    if (!(w = glfwCreateWindow(MINWINWIDTH, MINWINHEIGHT, "80x25 CGA renderer", NULL, NULL)))
     { puts("error creating window"); free(fontbitmap); goto errorquit_afterinitglfw; }
     glfwMakeContextCurrent(w);
 
     if (!gladLoadGL(glfwGetProcAddress))
     { puts("error loading OpenGL context through GLAD"); free(fontbitmap); goto errorquit_afterinitglfw; }
 
-    glfwSetWindowSizeLimits(w, 80 * 8, 25 * 16, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    glfwSetWindowSizeLimits(w, MINWINWIDTH, MINWINHEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwSetFramebufferSizeCallback(w, frbuffresz_callback);
     glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
@@ -95,14 +98,39 @@ int main(int argc, char *argv[])
     GLuint font;
     glGenTextures(1, &font);
     glBindTexture(GL_TEXTURE_2D, font);
-    applytex2Dlinearfilts();
+    applytexlinearfilts(GL_TEXTURE_2D);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, 16, 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, fontbitmap);
     free(fontbitmap);
-    
+
+    GLuint curshape;
+    glGenTextures(1, &curshape);
+    glBindTexture(GL_TEXTURE_1D, curshape);
+    applytexlinearfilts(GL_TEXTURE_1D);
+    const unsigned char curshapedata[] =
+    {
+        0b11111111,
+        0b10000001,
+        0b11000011,
+        0b11000011,
+        0b10100101,
+        0b10100101,
+        0b10011001,
+        0b10011001,
+        0b10011001,
+        0b10011001,
+        0b10100101,
+        0b10100101,
+        0b11000011,
+        0b11000011,
+        0b10000001,
+        0b11111111,
+    };
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, curshapedata);
+
     uint16_t *vmemdata = malloc(80 * 25 * 2);
     if (!vmemdata) { puts("error allocating video memory buffer in RAM"); goto errorquit_afterinitglfw; }
     memset(vmemdata, 0, 80 * 25 * 2);
-    
+
     vmem_clear(vmemdata, 7);
     vmem_writecs(vmemdata, 0, "Microsoft(R) MS-DOS(R) Version 6.22");
     vmem_writecs(vmemdata, 80 + 13, "(C)Copyright Microsoft Corp 1981-1994");
@@ -111,11 +139,11 @@ int main(int argc, char *argv[])
     GLuint vmem;
     glGenTextures(1, &vmem);
     glBindTexture(GL_TEXTURE_2D, vmem);
-    applytex2Dlinearfilts();
+    applytexlinearfilts(GL_TEXTURE_2D);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8UI, 80, 25, 0, GL_RG_INTEGER, GL_UNSIGNED_BYTE, vmemdata);
 
     // ==========================================================================================
-    
+
     GLuint prog;
     {
         GLuint vs = glCreateShader(GL_VERTEX_SHADER);
@@ -227,25 +255,30 @@ int main(int argc, char *argv[])
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, font);
 
+    glUniform1i(glGetUniformLocation(prog, "curshape"), 2);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_1D, curshape);
+
     GLint u_textblinkstate = glGetUniformLocation(prog, "textblinkstate");
 
     GLint u_curenabled = glGetUniformLocation(prog, "curenabled");
     GLint u_curpos = glGetUniformLocation(prog, "curpos");
     GLint u_curbounds = glGetUniformLocation(prog, "curbounds");
     GLint u_curblinkstate = glGetUniformLocation(prog, "curblinkstate");
-
+    
     glUniform1ui(u_curenabled, true);
     glUniform2ui(u_curpos, 7, 3);
     glUniform2ui(u_curbounds, 14, 15);
+    glUniform1ui(glGetUniformLocation(prog, "curuseshape"), true);
 
     monotime_t currtime;
     while (!glfwWindowShouldClose(w))
-    {   
+    {
         if (!monotime_now(&currtime)) { puts("error getting monotonic time in render loop"); break; }
         glUniform1ui(u_curblinkstate, (bool)((currtime / 266666667) % 2));
         glUniform1ui(u_textblinkstate, (bool)((currtime / 533333333) % 2));
 
-        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, NULL);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
         skipdraw:
         glfwSwapBuffers(w);
@@ -281,10 +314,10 @@ static char *getshadercompilelog(GLuint shader)
     return ret;
 }
 
-static void applytex2Dlinearfilts(void)
+static void applytexlinearfilts(GLenum target)
 {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
