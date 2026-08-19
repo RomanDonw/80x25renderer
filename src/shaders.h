@@ -7,7 +7,10 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-extern const char *vertexshadersource; 
-extern const char *fragmentshadersource;
+extern const char *__libtmrenderer_vertexshadersource;
+#define vertexshadersource (__libtmrenderer_vertexshadersource)
+
+extern const char *__libtmrenderer_fragmentshadersource;
+#define fragmentshadersource (__libtmrenderer_fragmentshadersource)
 
 #endif

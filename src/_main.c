@@ -11,10 +11,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#include <math.h>
 #include <stdbool.h>
 #include <libmonotime.h>
-
 #include "shaders.h"
 #include "renderfuncs.h"
 
@@ -131,7 +129,7 @@ int main(int argc, char *argv[])
         0b10000001,
         0b11111111,
     };
-    //glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, curshapedata);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, curshapedata);
 
     uint16_t *vmemdata = malloc(80 * 25 * 2);
     if (!vmemdata) { puts("error allocating video memory buffer in RAM"); goto errorquit_afterinitglfw; }
@@ -198,7 +196,6 @@ int main(int argc, char *argv[])
                 goto errorquit_aftervmemalloc;
             }
         }
-
     }
 
     // ==========================================================================================

@@ -6,7 +6,7 @@
 
 #include "shaders.h"
 
-const char *vertexshadersource =
+const char *__libtmrenderer_vertexshadersource =
     "#version 330 core\n"
 
     "layout (location = 0) in vec2 vpos;\n"
@@ -19,7 +19,7 @@ const char *vertexshadersource =
     "}"
 ;
 
-const char *fragmentshadersource =
+const char *__libtmrenderer_fragmentshadersource =
     "#version 330 core\n"
 
     "in vec2 scrcoord;\n"

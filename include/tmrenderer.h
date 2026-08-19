@@ -9,8 +9,13 @@
 
 #include <libncore.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-NError tmrenderer_init(int winwidth, int winheight);
+// !!! FULL NOT THREAD-SAFE FOR NOW !!!
+
+NError tmrenderer_init(const char *title);
 NError tmrenderer_quit(void);
+
+NError tmrenderer_flush(const uint16_t *vvmem);
 
 #endif
