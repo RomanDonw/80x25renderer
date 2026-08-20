@@ -5,24 +5,17 @@
 */
 
 #include "tmrenderer.h"
+#define INIT_C
+#include "init.h"
 
-#include <glad.h>
-#include <GLFW/glfw3.h>
-#include <stdbool.h>
+#include <string.h>
 #include <libmonotime.h>
 
 #include "shaders.h"
+#include "util.h"
 
 #define MINWINWIDTH 640
 #define MINWINHEIGHT 400
-
-static bool inited = false;
-static GLFWwindow *w = NULL;
-static GLuint font = 0, vvmem = 0, curshape = 0, prog = 0;
-
-static bool isshadercompilationsuccessful(GLuint shader);
-static void applytexlinearfilts(GLenum target);
-static void onresize(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
 
 static const float vertices[] =
 {
@@ -37,6 +30,18 @@ static const unsigned int indices[] =
     0, 2, 3
 };
 
+struct ctxn_s __libtmrenderer_ctxn = {0};
+struct ctxu_s __libtmrenderere_ctxu = {-1};
+
+bool __libtmrenderer_inited = false;
+#define inited (__libtmrenderer_inited)
+
+static bool isshadercompilationsuccessful(GLuint shader);
+static void applytexlinearfilts(GLenum target);
+static void onresize(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
+
+#define SETCTXUFIELDHELPER(name) (ctxu.name = glGetUniformLocation(ctxn.prog, "name"))
+
 NError tmrenderer_init(const char *title)
 {
     if (inited) return NError_AlreadyInitialized;
@@ -48,32 +53,15 @@ NError tmrenderer_init(const char *title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    if (!(w = glfwCreateWindow(MINWINWIDTH, MINWINHEIGHT, title, NULL, NULL))) goto errorquit_afterinitglfw;
-    glfwMakeContextCurrent(w);
+    if (!(ctxn.window = glfwCreateWindow(MINWINWIDTH, MINWINHEIGHT, title, NULL, NULL))) goto errorquit_afterinitglfw;
+    glfwMakeContextCurrent(ctxn.window);
 
     if (!gladLoadGL(glfwGetProcAddress)) goto errorquit_afterinitglfw;
 
-    glfwSetWindowSizeLimits(w, MINWINWIDTH, MINWINHEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
-    glfwSetFramebufferSizeCallback(w, onresize);
-    glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-    // ==========================================================================================
-
-    glGenTextures(1, &font);
-    glBindTexture(GL_TEXTURE_2D, font);
-    applytexlinearfilts(GL_TEXTURE_2D);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, 16, 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
-
-    glGenTextures(1, &vvmem);
-    glBindTexture(GL_TEXTURE_2D, vvmem);
-    applytexlinearfilts(GL_TEXTURE_2D);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8UI, 80, 25, 0, GL_RG_INTEGER, GL_UNSIGNED_BYTE, NULL);
-
-    glGenTextures(1, &curshape);
-    glBindTexture(GL_TEXTURE_1D, curshape);
-    applytexlinearfilts(GL_TEXTURE_1D);
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
-
+    glfwSetWindowSizeLimits(ctxn.window, MINWINWIDTH, MINWINHEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    glfwSetFramebufferSizeCallback(ctxn.window, onresize);
+    glfwSetInputMode(ctxn.window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    
     // ==========================================================================================
 
     {
@@ -87,17 +75,34 @@ NError tmrenderer_init(const char *title)
         glCompileShader(fs);
         if (!isshadercompilationsuccessful(fs)) goto errorquit_afterinitglfw;
 
-        prog = glCreateProgram();
-        glAttachShader(prog, vs);
-        glAttachShader(prog, fs);
-        glLinkProgram(prog);
-        glUseProgram(prog);
+        ctxn.prog = glCreateProgram();
+        glAttachShader(ctxn.prog, vs);
+        glAttachShader(ctxn.prog, fs);
+        glLinkProgram(ctxn.prog);
+        glUseProgram(ctxn.prog);
 
         GLint result;
-        glGetProgramiv(prog, GL_LINK_STATUS, &result);
+        glGetProgramiv(ctxn.prog, GL_LINK_STATUS, &result);
         if (!result) goto errorquit_afterinitglfw;
     }
 
+    
+    SETCTXUFIELDHELPER(curblinkstate);
+    SETCTXUFIELDHELPER(curenabled);
+    SETCTXUFIELDHELPER(curpos);
+    SETCTXUFIELDHELPER(curbounds);
+    SETCTXUFIELDHELPER(curuseshape);
+    SETCTXUFIELDHELPER(textblinkstate);
+    SETCTXUFIELDHELPER(colors);
+
+    // ==========================================================================================
+
+    glUniform1ui(ctxu.curenabled, true);
+    glUniform2ui(ctxu.curpos, 0, 0);
+    glUniform2ui(ctxu.curbounds, 14, 15);
+    glUniform1ui(ctxu.curuseshape, false);
+    glUniform3fv(ctxu.colors, 16, CGAcolors);
+    
     // ==========================================================================================
 
     GLuint VAO, VBO, EBO;
@@ -116,6 +121,29 @@ NError tmrenderer_init(const char *title)
 
     // ==========================================================================================
 
+    glGenTextures(1, &ctxn.vvmem);
+    glUniform1i(glGetUniformLocation(ctxn.prog, "vmem"), 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, ctxn.vvmem);
+    applytexlinearfilts(GL_TEXTURE_2D);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8UI, 80, 25, 0, GL_RG_INTEGER, GL_UNSIGNED_BYTE, NULL);
+
+    glGenTextures(1, &ctxn.font);
+    glUniform1i(glGetUniformLocation(ctxn.prog, "font"), 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, ctxn.font);
+    applytexlinearfilts(GL_TEXTURE_2D);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, 16, 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
+    
+    glGenTextures(1, &ctxn.curshape);
+    glUniform1i(glGetUniformLocation(ctxn.prog, "curshape"), 2);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_1D, ctxn.curshape);
+    applytexlinearfilts(GL_TEXTURE_1D);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
+
+    // ==========================================================================================
+
     inited = true;
     return NError_Success;
 
@@ -130,8 +158,8 @@ NError tmrenderer_quit(void)
     if (!inited) return NError_NotInitialized;
 
     glfwTerminate();
-    w = NULL;
-    font = vvmem = curshape = prog = 0;
+    memset(&ctxn, 0, sizeof(ctxn));
+    memset(&ctxu, -1, sizeof(ctxu));
 
     inited = false;
     return NError_Success;
