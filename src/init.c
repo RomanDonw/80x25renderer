@@ -40,7 +40,10 @@ static bool isshadercompilationsuccessful(GLuint shader);
 static void applytexlinearfilts(GLenum target);
 static void onresize(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
 
-#define SETCTXUFIELDHELPER(name) (ctxu.name = glGetUniformLocation(ctxn.prog, "name"))
+#define SETCTXUFIELDHELPER(fieldname, uniformstrname) (ctxu.fieldname = glGetUniformLocation(ctxn.prog, uniformstrname))
+
+//static void ondebugmsg(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userdata)
+//{ printf("%u %u %u %u %s\n", source, type, id, severity, message); }
 
 NError tmrenderer_init(const char *title)
 {
@@ -57,6 +60,12 @@ NError tmrenderer_init(const char *title)
     glfwMakeContextCurrent(ctxn.window);
 
     if (!gladLoadGL(glfwGetProcAddress)) goto errorquit_afterinitglfw;
+
+    /*
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(ondebugmsg, NULL);
+    */
 
     glfwSetWindowSizeLimits(ctxn.window, MINWINWIDTH, MINWINHEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwSetFramebufferSizeCallback(ctxn.window, onresize);
@@ -87,13 +96,13 @@ NError tmrenderer_init(const char *title)
     }
 
     
-    SETCTXUFIELDHELPER(curblinkstate);
-    SETCTXUFIELDHELPER(curenabled);
-    SETCTXUFIELDHELPER(curpos);
-    SETCTXUFIELDHELPER(curbounds);
-    SETCTXUFIELDHELPER(curuseshape);
-    SETCTXUFIELDHELPER(textblinkstate);
-    SETCTXUFIELDHELPER(colors);
+    SETCTXUFIELDHELPER(curblinkstate, "curblinkstate");
+    SETCTXUFIELDHELPER(curenabled, "curenabled");
+    SETCTXUFIELDHELPER(curpos, "curpos");
+    SETCTXUFIELDHELPER(curbounds, "curbounds");
+    SETCTXUFIELDHELPER(curuseshape, "curuseshape");
+    SETCTXUFIELDHELPER(textblinkstate, "textblinkstate");
+    SETCTXUFIELDHELPER(colors, "colors");
 
     // ==========================================================================================
 
@@ -190,5 +199,5 @@ static void applytexlinearfilts(GLenum target)
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    if (target != GL_TEXTURE_1D) glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }

@@ -34,7 +34,7 @@ NError tmrenderer_loadfont(const unsigned char *font)
 NError tmrenderer_loadvvmem(const uint16_t *vvmem)
 {
     ENSURE_INIT;
-    glBindTexture(GL_TEXTURE_2D, ctxn.font);
+    glBindTexture(GL_TEXTURE_2D, ctxn.vvmem);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 80, 25, GL_RG_INTEGER, GL_UNSIGNED_BYTE, vvmem);
     glBindTexture(GL_TEXTURE_2D, 0);
     return NError_Success;
@@ -74,7 +74,7 @@ NError tmrenderer_curpos(unsigned char x, unsigned char y)
 NError tmrenderer_curbounds(unsigned char startline, unsigned char endline)
 {
     ENSURE_INIT;
-    glUniform2ui(ctxu.curpos, startline, endline);
+    glUniform2ui(ctxu.curbounds, startline, endline);
     return NError_Success;
 }
 
