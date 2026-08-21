@@ -33,9 +33,8 @@ int main(void)
     {
         (*((uint16_t *)buff))++;
         tmrenderer_updatevvmem(0, 0, 1, 1, buff);
-
-        if (tmrenderer_render() != NError_Success) break;
-        tmrenderer_pollevents(false);
+        
+        if ((tmrenderer_render() != NError_Success) || (tmrenderer_pollevents(false) != NError_Success)) break;
     }
 
     free(buff);
