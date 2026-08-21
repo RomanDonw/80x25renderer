@@ -42,9 +42,6 @@ static void onresize(GLFWwindow *window, int width, int height) { glViewport(0, 
 
 #define SETCTXUFIELDHELPER(fieldname, uniformstrname) (ctxu.fieldname = glGetUniformLocation(ctxn.prog, uniformstrname))
 
-//static void ondebugmsg(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userdata)
-//{ printf("%u %u %u %u %s\n", source, type, id, severity, message); }
-
 NError tmrenderer_init(const char *title)
 {
     if (inited) return NError_AlreadyInitialized;
@@ -60,12 +57,6 @@ NError tmrenderer_init(const char *title)
     glfwMakeContextCurrent(ctxn.window);
 
     if (!gladLoadGL(glfwGetProcAddress)) goto errorquit_afterinitglfw;
-
-    /*
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(ondebugmsg, NULL);
-    */
 
     glfwSetWindowSizeLimits(ctxn.window, MINWINWIDTH, MINWINHEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwSetFramebufferSizeCallback(ctxn.window, onresize);
@@ -180,19 +171,6 @@ static bool isshadercompilationsuccessful(GLuint shader)
     glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
     return result;
 }
-
-/*
-static char *getshadercompilelog(GLuint shader)
-{
-    GLint length;
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-    if (length <= 0) return NULL;
-
-    char *ret = malloc(length);
-    glGetShaderInfoLog(shader, length, NULL, ret);
-    return ret;
-}
-*/
 
 static void applytexlinearfilts(GLenum target)
 {
