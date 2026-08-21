@@ -9,6 +9,7 @@ int main(void)
     if (tmrenderer_init("test") != NError_Success) { puts("failed to initialize renderer"); return 1; }
 
     void *buff = malloc(4096);
+    if (!buff) { puts("memory allocation failed"); return 1; }
 
     {
         FILE *f = fopen("res/cp866.f16", "r");
@@ -21,11 +22,14 @@ int main(void)
     memset(buff, 0x47, 4000);
     tmrenderer_loadvvmem(buff);
 
-    do
+    bool shouldclose;
+    while (tmrenderer_getshouldclose(&shouldclose) == NError_Success && !shouldclose)
     {
         (*((uint16_t *)buff))++;
-        tmrenderer_loadvvmem(buff);
-    } while (tmrenderer_render() == NError_Success);
+        tmrenderer_updatevvmem(0, 0, 1, 1, buff);
+
+        if (tmrenderer_render() != NError_Success) break;
+    }
 
     free(buff);
     tmrenderer_quit();

@@ -5,10 +5,23 @@
 #include "init.h"
 #include "util.h"
 
+NError tmrenderer_getshouldclose(bool *state)
+{
+    ENSURE_INIT;
+    *state = glfwWindowShouldClose(ctxn.window);
+    return NError_Success;
+}
+
+NError tmrenderer_setshouldclose(bool state)
+{
+    ENSURE_INIT;
+    glfwSetWindowShouldClose(ctxn.window, state);
+    return NError_Success;
+}
+
 NError tmrenderer_render(void)
 {
     ENSURE_INIT;
-    if (glfwWindowShouldClose(ctxn.window)) return NError_Interrupted;
 
     monotime_t currtime;
     if (!monotime_now(&currtime)) return NError_Fault;
@@ -38,6 +51,19 @@ NError tmrenderer_loadvvmem(const uint16_t *vvmem)
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 80, 25, GL_RG_INTEGER, GL_UNSIGNED_BYTE, vvmem);
     glBindTexture(GL_TEXTURE_2D, 0);
     return NError_Success;
+}
+
+NError tmrenderer_updatevvmem(unsigned char x, unsigned char y, unsigned char w, unsigned char h, const uint16_t *data)
+{
+    ENSURE_INIT;
+    NError nerr = NError_Success;
+    glBindTexture(GL_TEXTURE_2D, ctxn.vvmem);
+
+    glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RG_INTEGER, GL_UNSIGNED_BYTE, data);
+    if (glGetError()) nerr = NError_Fault;
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return nerr;
 }
 
 NError tmrenderer_loadcurshape(const unsigned char *curshape)
