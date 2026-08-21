@@ -35,6 +35,7 @@ int main(void)
         tmrenderer_updatevvmem(0, 0, 1, 1, buff);
 
         if (tmrenderer_render() != NError_Success) break;
+        tmrenderer_pollevents(false);
     }
 
     free(buff);

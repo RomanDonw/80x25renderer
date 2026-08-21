@@ -22,6 +22,7 @@ NError tmrenderer_setshouldclose(bool state);
 
 //NError tmrenderer_refresh(const uint16_t *vvmem);
 NError tmrenderer_render(void); // returns NError_Interrupted when user wants to close renderer`s window.
+NError tmrenderer_pollevents(bool wait);
 
 NError tmrenderer_loadfont(const unsigned char *font);
 NError tmrenderer_loadcurshape(const unsigned char *curshape);

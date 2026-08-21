@@ -36,7 +36,13 @@ NError tmrenderer_render(void)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
     glfwSwapBuffers(ctxn.window);
-    glfwPollEvents();
+    return NError_Success;
+}
+
+NError tmrenderer_pollevents(bool wait)
+{
+    ENSURE_INIT;
+    wait ? glfwWaitEvents() : glfwPollEvents();
     return NError_Success;
 }
 
