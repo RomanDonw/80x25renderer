@@ -6,10 +6,9 @@
 
 #include "tmrenderer.h"
 
-#include <libmonotime.h>
-
 #include "init.h"
 #include "util.h"
+#include "constants.h"
 
 NError tmrenderer_getshouldclose(bool *state)
 {
@@ -31,8 +30,8 @@ NError tmrenderer_render(void)
 
     monotime_t currtime;
     if (!monotime_now(&currtime)) return NError_Fault;
-    glUniform1ui(ctxu.curblinkstate, (bool)((currtime / 266666667) % 2));
-    glUniform1ui(ctxu.textblinkstate, (bool)((currtime / 533333333) % 2));
+    glUniform1ui(ctxu.curblinkstate, (bool)((currtime / curblinkperiod) % 2));
+    glUniform1ui(ctxu.textblinkstate, (bool)((currtime / textblinkperiod) % 2));
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
@@ -114,5 +113,33 @@ NError tmrenderer_curuseshape(bool state)
 {
     ENSURE_INIT;
     glUniform1ui(ctxu.curuseshape, state);
+    return NError_Success;
+}
+
+NError tmrenderer_gettextblinkperiod(monotime_t *period)
+{
+    ENSURE_INIT;
+    *period = textblinkperiod;
+    return NError_Success;
+}
+
+NError tmrenderer_settextblinkperiod(monotime_t period)
+{
+    ENSURE_INIT;
+    textblinkperiod = period ? period : DEFAULTTEXTBLINKPERIOD;
+    return NError_Success;
+}
+
+NError tmrenderer_getcurblinkperiod(monotime_t *period)
+{
+    ENSURE_INIT;
+    *period = curblinkperiod;
+    return NError_Success;
+}
+
+NError tmrenderer_setcurblinkperiod(monotime_t period)
+{
+    ENSURE_INIT;
+    curblinkperiod = period ? period : DEFAULTCURBLINKPERIOD;
     return NError_Success;
 }

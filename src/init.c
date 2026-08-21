@@ -9,10 +9,10 @@
 #include "init.h"
 
 #include <string.h>
-#include <libmonotime.h>
 
 #include "shaders.h"
 #include "util.h"
+#include "constants.h"
 
 #define MINWINWIDTH 640
 #define MINWINHEIGHT 400
@@ -35,6 +35,8 @@ struct ctxu_s __libtmrenderere_ctxu = {-1};
 
 bool __libtmrenderer_inited = false;
 #define inited (__libtmrenderer_inited)
+
+monotime_t __libtmrenderer_textblinkperiod, __libtmrenderer_curblinkperiod;
 
 static bool isshadercompilationsuccessful(GLuint shader);
 static void applytexlinearfilts(GLenum target);
@@ -143,6 +145,9 @@ NError tmrenderer_init(const char *title)
     glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
 
     // ==========================================================================================
+
+    curblinkperiod = DEFAULTCURBLINKPERIOD;
+    textblinkperiod = DEFAULTTEXTBLINKPERIOD;
 
     inited = true;
     return NError_Success;

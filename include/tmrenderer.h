@@ -10,6 +10,7 @@
 #include <libncore.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <libmonotime.h>
 
 // !!! FULL NOT THREAD-SAFE FOR NOW !!!
 
@@ -33,5 +34,10 @@ NError tmrenderer_curenabled(bool state);
 NError tmrenderer_curpos(unsigned char x, unsigned char y);
 NError tmrenderer_curbounds(unsigned char startline, unsigned char endline);
 NError tmrenderer_curuseshape(bool state);
+
+NError tmrenderer_gettextblinkperiod(monotime_t *period);
+NError tmrenderer_settextblinkperiod(monotime_t period); // value 0 restores default value.
+NError tmrenderer_getcurblinkperiod(monotime_t *period);
+NError tmrenderer_setcurblinkperiod(monotime_t period); // value 0 restores default value.
 
 #endif
