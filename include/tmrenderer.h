@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <libmonotime.h>
+#include <GLFW/glfw3.h>
 
 // !!! FULL NOT THREAD-SAFE FOR NOW !!!
 
@@ -40,5 +41,15 @@ NError tmrenderer_gettextblinkperiod(monotime_t *period);
 NError tmrenderer_settextblinkperiod(monotime_t period); // value 0 restores default value.
 NError tmrenderer_getcurblinkperiod(monotime_t *period);
 NError tmrenderer_setcurblinkperiod(monotime_t period); // value 0 restores default value.
+
+// this functions uses GLFW key codes & states.
+
+typedef void (*TMRendererKeyInputCallback)(int keycode, int scancode, int action, int mods);
+typedef void (*TMRendererCharInputCallback)(unsigned int codepoint);
+
+NError tmrenderer_getkeystate(int keycode, int *state);
+NError tmrenderer_getkeyname(int keycode, const char **keyname);
+NError tmrenderer_setkeycallback(TMRendererKeyInputCallback callback);
+NError tmrenderer_setcharcallback(TMRendererCharInputCallback callback);
 
 #endif

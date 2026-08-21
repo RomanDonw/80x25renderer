@@ -4,7 +4,6 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-#include "tmrenderer.h"
 #define INIT_C
 #include "init.h"
 
@@ -60,6 +59,7 @@ NError tmrenderer_init(const char *title)
 
     if (!gladLoadGL(glfwGetProcAddress)) goto errorquit_afterinitglfw;
 
+    onresize(ctxn.window, MINWINWIDTH, MINWINHEIGHT);
     glfwSetWindowSizeLimits(ctxn.window, MINWINWIDTH, MINWINHEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwSetFramebufferSizeCallback(ctxn.window, onresize);
     glfwSetInputMode(ctxn.window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);

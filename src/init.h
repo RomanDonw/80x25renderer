@@ -8,9 +8,8 @@
 #define INIT_H
 
 #include <libncore.h>
-#include <stdbool.h>
 #include <glad.h>
-#include <GLFW/glfw3.h>
+#include "tmrenderer.h"
 
 #ifdef INIT_C
     #define INIT_H_EXTERN_QUALIFIER

@@ -4,8 +4,6 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-#include "tmrenderer.h"
-
 #include "init.h"
 #include "util.h"
 #include "constants.h"
