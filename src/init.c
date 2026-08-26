@@ -12,6 +12,8 @@
 #include "shaders.h"
 #include "util.h"
 #include "constants.h"
+#include "text.h"
+#include "cursor.h"
 
 #define MINWINWIDTH 640
 #define MINWINHEIGHT 400
@@ -35,11 +37,12 @@ struct ctxu_s __libtmrenderere_ctxu = {-1};
 bool __libtmrenderer_inited = false;
 #define inited (__libtmrenderer_inited)
 
-monotime_t __libtmrenderer_textblinkperiod, __libtmrenderer_curblinkperiod;
-
 static bool isshadercompilationsuccessful(GLuint shader);
 static void applytexlinearfilts(GLenum target);
 static void onresize(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
+static void keycallback(GLFWwindow *window, int keycode, int scancode, int action, int mods)
+{ if (ctxn.keycallback) ctxn.keycallback(keycode, action, mods); }
+static void oninputchar(GLFWwindow *window, unsigned int codepoint) { if (ctxn.charcallback) ctxn.charcallback(codepoint); }
 
 #define SETCTXUFIELDHELPER(fieldname, uniformstrname) (ctxu.fieldname = glGetUniformLocation(ctxn.prog, uniformstrname))
 
@@ -63,6 +66,8 @@ NError tmrenderer_init(const char *title)
     glfwSetWindowSizeLimits(ctxn.window, MINWINWIDTH, MINWINHEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwSetFramebufferSizeCallback(ctxn.window, onresize);
     glfwSetInputMode(ctxn.window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetKeyCallback(ctxn.window, keycallback);
+    glfwSetCharCallback(ctxn.window, oninputchar);
     
     // ==========================================================================================
 
@@ -88,7 +93,6 @@ NError tmrenderer_init(const char *title)
         if (!result) goto errorquit_afterinitglfw;
     }
 
-    
     SETCTXUFIELDHELPER(curblinkstate, "curblinkstate");
     SETCTXUFIELDHELPER(curenabled, "curenabled");
     SETCTXUFIELDHELPER(curpos, "curpos");
@@ -99,10 +103,10 @@ NError tmrenderer_init(const char *title)
 
     // ==========================================================================================
 
-    glUniform1ui(ctxu.curenabled, true);
-    glUniform2ui(ctxu.curpos, 0, 0);
-    glUniform2ui(ctxu.curbounds, 14, 15);
-    glUniform1ui(ctxu.curuseshape, false);
+    SETCURENABLED(true);
+    SETCURPOS(0, 0);
+    SETCURBOUNDS(14, 15);
+    SETCURUSESHAPE(false);
     glUniform3fv(ctxu.colors, 16, CGAcolors);
     
     // ==========================================================================================
@@ -146,8 +150,8 @@ NError tmrenderer_init(const char *title)
 
     // ==========================================================================================
 
-    curblinkperiod = DEFAULTCURBLINKPERIOD;
-    textblinkperiod = DEFAULTTEXTBLINKPERIOD;
+    v_curblinkperiod = DEFAULTCURBLINKPERIOD;
+    v_textblinkperiod = DEFAULTTEXTBLINKPERIOD;
 
     inited = true;
     return NError_Success;

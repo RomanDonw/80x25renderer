@@ -5,8 +5,10 @@
 */
 
 #include "init.h"
+#include "tmrenderer.h"
 #include "util.h"
-#include "constants.h"
+#include "text.h"
+#include "cursor.h"
 
 NError tmrenderer_getshouldclose(bool *state)
 {
@@ -28,8 +30,8 @@ NError tmrenderer_render(void)
 
     monotime_t currtime;
     if (!monotime_now(&currtime)) return NError_Fault;
-    glUniform1ui(ctxu.curblinkstate, (bool)((currtime / curblinkperiod) % 2));
-    glUniform1ui(ctxu.textblinkstate, (bool)((currtime / textblinkperiod) % 2));
+    glUniform1ui(ctxu.curblinkstate, (bool)((currtime / v_curblinkperiod) % 2));
+    glUniform1ui(ctxu.textblinkstate, (bool)((currtime / v_textblinkperiod) % 2));
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
@@ -89,61 +91,5 @@ NError tmrenderer_loadcolors(const float *colors)
     ENSURE_INIT;
     if (!colors) colors = CGAcolors;
     glUniform3fv(ctxu.colors, 16, colors);
-    return NError_Success;
-}
-
-NError tmrenderer_curenabled(bool state)
-{
-    ENSURE_INIT;
-    glUniform1ui(ctxu.curenabled, state);
-    return NError_Success;
-}
-
-NError tmrenderer_curpos(unsigned char x, unsigned char y)
-{
-    ENSURE_INIT;
-    glUniform2ui(ctxu.curpos, x, y);
-    return NError_Success;
-}
-
-NError tmrenderer_curbounds(unsigned char startline, unsigned char endline)
-{
-    ENSURE_INIT;
-    glUniform2ui(ctxu.curbounds, startline, endline);
-    return NError_Success;
-}
-
-NError tmrenderer_curuseshape(bool state)
-{
-    ENSURE_INIT;
-    glUniform1ui(ctxu.curuseshape, state);
-    return NError_Success;
-}
-
-NError tmrenderer_gettextblinkperiod(monotime_t *period)
-{
-    ENSURE_INIT;
-    *period = textblinkperiod;
-    return NError_Success;
-}
-
-NError tmrenderer_settextblinkperiod(monotime_t period)
-{
-    ENSURE_INIT;
-    textblinkperiod = period ? period : DEFAULTTEXTBLINKPERIOD;
-    return NError_Success;
-}
-
-NError tmrenderer_getcurblinkperiod(monotime_t *period)
-{
-    ENSURE_INIT;
-    *period = curblinkperiod;
-    return NError_Success;
-}
-
-NError tmrenderer_setcurblinkperiod(monotime_t period)
-{
-    ENSURE_INIT;
-    curblinkperiod = period ? period : DEFAULTCURBLINKPERIOD;
     return NError_Success;
 }

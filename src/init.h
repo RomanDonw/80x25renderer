@@ -25,8 +25,10 @@ struct ctxn_s
 {
     GLFWwindow *window;
     GLuint font, vvmem, curshape, prog;
+    TMRendererKeyInputCallback keycallback;
+    TMRendererCharInputCallback charcallback;
 };
-extern INIT_H_EXTERN_QUALIFIER struct ctxn_s __libtmrenderer_ctxn;
+extern struct ctxn_s __libtmrenderer_ctxn;
 #define ctxn (__libtmrenderer_ctxn)
 
 // uniform vars.
@@ -34,9 +36,5 @@ struct ctxu_s
 { GLint colors, textblinkstate, curenabled, curpos, curbounds, curblinkstate, curuseshape; }
 extern INIT_H_EXTERN_QUALIFIER __libtmrenderere_ctxu;
 #define ctxu (__libtmrenderere_ctxu)
-
-extern monotime_t __libtmrenderer_textblinkperiod, __libtmrenderer_curblinkperiod;
-#define textblinkperiod (__libtmrenderer_textblinkperiod)
-#define curblinkperiod (__libtmrenderer_curblinkperiod)
 
 #endif
