@@ -10,7 +10,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+static bool clrnext = false;
 static uint8_t attr = 7;
+static uint16_t *buff;
+static inline void clrscr(uint16_t v)
+{
+    for (uint16_t i = 0; i < 2000; i++) ((uint16_t *)buff)[i] = v;
+    tmrenderer_loadvvmem(buff);
+}
 
 static void charcallback(unsigned int codepoint)
 {
@@ -19,17 +26,25 @@ static void charcallback(unsigned int codepoint)
     if (codepoint > 31 && codepoint < 127 || codepoint >= 0x410 && codepoint <= 0x44F || codepoint == 0x401 || codepoint == 0x451)
     {
         if (y >= 24 && x >= 79) return;
-
+        
         uint16_t chr = attr << 8;
         if (codepoint == 0x451) chr |= 0xF1;
         else if (codepoint == 0x401) chr |= 0xF0;
         else if (codepoint < 127) chr |= codepoint;
         else if (codepoint < 0x440) chr |= codepoint - 0x410 + 0x80;
         else chr |= codepoint - 0x440 + 0xE0;
-
-        tmrenderer_updatevvmem(x, y, 1, 1, &chr);
-        if (++x > 79) { x = 0; y++; }
-        tmrenderer_setcurpos(x, y);
+        
+        if (clrnext)
+        {
+            clrscr(chr);
+            clrnext = false;
+        }
+        else
+        {
+            tmrenderer_updatevvmem(x, y, 1, 1, &chr);
+            if (++x > 79) { x = 0; y++; }
+            tmrenderer_setcurpos(x, y);
+        }
     }
 }
 
@@ -64,6 +79,7 @@ static void keycallback(int key, int action, int mods)
                 else
                 {
                     if (key == GLFW_KEY_B) attr ^= 0x80;
+                    else if (key == GLFW_KEY_C) clrnext = true;
                     else if (key == GLFW_KEY_0) attr = attr & 0xF0;
                     else if (key == GLFW_KEY_1) attr = attr & 0xF0 | 1;
                     else if (key == GLFW_KEY_2) attr = attr & 0xF0 | 2;
@@ -121,6 +137,11 @@ static void keycallback(int key, int action, int mods)
             if ((x++) >= 79) return;
             tmrenderer_setcurpos(x, y);
         }
+        else if (key == GLFW_KEY_DELETE)
+        {
+            clrscr(attr << 8);
+            clrnext = false;
+        }
     }
 }
 
@@ -128,7 +149,7 @@ int main(void)
 {
     if (tmrenderer_init("test") != NError_Success) { puts("failed to initialize renderer"); return 1; }
 
-    void *buff = malloc(4096);
+    buff = malloc(4096);
     if (!buff) { puts("memory allocation failed"); return 1; }
 
     {
@@ -136,19 +157,18 @@ int main(void)
         if (!f) { puts("unable to load font from file \"res/cp866.f16\""); return 1; }
         fread(buff, 1, 4096, f);
         fclose(f);
-        tmrenderer_loadfont(buff);
+        tmrenderer_loadfont((void *)buff);
     }
 
-    memset(buff, 0x47, 4000);
-    tmrenderer_loadvvmem(buff);
+    clrscr(attr << 8);
     tmrenderer_setcharcallback(charcallback);
     tmrenderer_setkeycallback(keycallback);
 
     bool shouldclose;
     while (tmrenderer_getshouldclose(&shouldclose) == NError_Success && !shouldclose)
     {
-        (*((uint16_t *)buff))++;
-        tmrenderer_updatevvmem(0, 0, 1, 1, buff);
+        //(*((uint16_t *)buff))++;
+        //tmrenderer_updatevvmem(0, 0, 1, 1, buff);
         
         if ((tmrenderer_render() != NError_Success) || (tmrenderer_pollevents(false) != NError_Success)) break;
     }
