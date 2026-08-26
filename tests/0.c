@@ -10,6 +10,120 @@
 #include <stdlib.h>
 #include <string.h>
 
+static uint8_t attr = 7;
+
+static void charcallback(unsigned int codepoint)
+{
+    unsigned char x, y;
+    tmrenderer_getcurpos(&x, &y);
+    if (codepoint > 31 && codepoint < 127 || codepoint >= 0x410 && codepoint <= 0x44F || codepoint == 0x401 || codepoint == 0x451)
+    {
+        if (y >= 24 && x >= 79) return;
+
+        uint16_t chr = attr << 8;
+        if (codepoint == 0x451) chr |= 0xF1;
+        else if (codepoint == 0x401) chr |= 0xF0;
+        else if (codepoint < 127) chr |= codepoint;
+        else if (codepoint < 0x440) chr |= codepoint - 0x410 + 0x80;
+        else chr |= codepoint - 0x440 + 0xE0;
+
+        tmrenderer_updatevvmem(x, y, 1, 1, &chr);
+        if (++x > 79) { x = 0; y++; }
+        tmrenderer_setcurpos(x, y);
+    }
+}
+
+static void keycallback(int key, int action, int mods)
+{
+    if (action == GLFW_PRESS || action == GLFW_REPEAT)
+    {
+        unsigned char x, y;
+        tmrenderer_getcurpos(&x, &y);
+        if (action == GLFW_PRESS)
+        {
+            /*
+            if (mods & GLFW_MOD_CONTROL && key == GLFW_KEY_B)
+            {
+                if (mods & GLFW_MOD_SHIFT) (use reading video memory segment here).
+                else attr ^= 0x80;
+            }
+            */
+            if (mods & GLFW_MOD_CONTROL)
+            {
+                if (mods & GLFW_MOD_SHIFT)
+                {
+                    if (key == GLFW_KEY_0) attr = attr & 0x8F;
+                    else if (key == GLFW_KEY_1) attr = attr & 0x8F | 0x10;
+                    else if (key == GLFW_KEY_2) attr = attr & 0x8F | 0x20;
+                    else if (key == GLFW_KEY_3) attr = attr & 0x8F | 0x30;
+                    else if (key == GLFW_KEY_4) attr = attr & 0x8F | 0x40;
+                    else if (key == GLFW_KEY_5) attr = attr & 0x8F | 0x50;
+                    else if (key == GLFW_KEY_6) attr = attr & 0x8F | 0x60;
+                    else if (key == GLFW_KEY_7) attr = attr & 0x8F | 0x70;
+                }
+                else
+                {
+                    if (key == GLFW_KEY_B) attr ^= 0x80;
+                    else if (key == GLFW_KEY_0) attr = attr & 0xF0;
+                    else if (key == GLFW_KEY_1) attr = attr & 0xF0 | 1;
+                    else if (key == GLFW_KEY_2) attr = attr & 0xF0 | 2;
+                    else if (key == GLFW_KEY_3) attr = attr & 0xF0 | 3;
+                    else if (key == GLFW_KEY_4) attr = attr & 0xF0 | 4;
+                    else if (key == GLFW_KEY_5) attr = attr & 0xF0 | 5;
+                    else if (key == GLFW_KEY_6) attr = attr & 0xF0 | 6;
+                    else if (key == GLFW_KEY_7) attr = attr & 0xF0 | 7;
+                    else if (key == GLFW_KEY_8) attr = attr & 0xF0 | 8;
+                    else if (key == GLFW_KEY_9) attr = attr & 0xF0 | 9;
+                    else if (key == GLFW_KEY_A) attr = attr & 0xF0 | 10;
+                    else if (key == GLFW_KEY_B) attr = attr & 0xF0 | 11;
+                    else if (key == GLFW_KEY_C) attr = attr & 0xF0 | 12;
+                    else if (key == GLFW_KEY_D) attr = attr & 0xF0 | 13;
+                    else if (key == GLFW_KEY_E) attr = attr & 0xF0 | 14;
+                    else if (key == GLFW_KEY_F) attr = attr & 0xF0 | 15;
+                }
+                return;
+            }
+        }
+ 
+        if (key == GLFW_KEY_BACKSPACE)
+        {
+            if (!(x || y)) return;
+            if (!x) { y--; x = 79; }
+            else x--;
+            
+            uint16_t nullchr = attr << 8;
+            tmrenderer_updatevvmem(x, y, 1, 1, &nullchr);
+            tmrenderer_setcurpos(x, y);
+        }
+        else if (key == GLFW_KEY_ENTER)
+        {
+            if (y++ >= 24) return;
+            x = 0;
+            tmrenderer_setcurpos(x, y);
+        }
+        else if (key == GLFW_KEY_UP)
+        {
+            if (!(y--)) return;
+            tmrenderer_setcurpos(x, y);
+        }
+        else if (key == GLFW_KEY_DOWN)
+        {
+            if (y++ >= 24) return;
+            tmrenderer_setcurpos(x, y);
+        }
+        else if (key == GLFW_KEY_LEFT)
+        {
+            if (!(x--)) return;
+            tmrenderer_setcurpos(x, y);
+        }
+        else if (key == GLFW_KEY_RIGHT)
+        {
+            if ((x++) >= 79) return;
+            tmrenderer_setcurpos(x, y);
+        }
+    }
+}
+
 int main(void)
 {
     if (tmrenderer_init("test") != NError_Success) { puts("failed to initialize renderer"); return 1; }
@@ -27,6 +141,8 @@ int main(void)
 
     memset(buff, 0x47, 4000);
     tmrenderer_loadvvmem(buff);
+    tmrenderer_setcharcallback(charcallback);
+    tmrenderer_setkeycallback(keycallback);
 
     bool shouldclose;
     while (tmrenderer_getshouldclose(&shouldclose) == NError_Success && !shouldclose)
