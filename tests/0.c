@@ -142,6 +142,8 @@ static void keycallback(int key, int action, int mods)
             clrscr(attr << 8);
             clrnext = false;
         }
+        else if (key == GLFW_KEY_HOME) tmrenderer_setcurpos(0, y);
+        else if (key == GLFW_KEY_END) tmrenderer_setcurpos(79, y);
     }
 }
 
