@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 
 # ========== SETTINGS ==========
-project(renderer VERSION 0.0 LANGUAGES C)
+project(tmrenderer VERSION 0.0 LANGUAGES C)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
