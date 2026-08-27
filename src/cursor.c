@@ -8,7 +8,6 @@
 
 #include "init.h"
 #include "tmrenderer.h"
-#include "constants.h"
 
 struct cursorcachedstate_s __libtmrenderer_cursorcachedstate;
 
@@ -26,7 +25,7 @@ NError tmrenderer_setcurenabled(bool state)
     return NError_Success;
 }
 
-NError tmrenderer_getcurpos(unsigned char *x, unsigned char *y)
+NError tmrenderer_getcurpos(uint8_t *x, uint8_t *y)
 {
     ENSURE_INIT;
     *x = cursorcachedstate.x;
@@ -34,14 +33,14 @@ NError tmrenderer_getcurpos(unsigned char *x, unsigned char *y)
     return NError_Success;
 }
 
-NError tmrenderer_setcurpos(unsigned char x, unsigned char y)
+NError tmrenderer_setcurpos(uint8_t x, uint8_t y)
 {
     ENSURE_INIT;
     SETCURPOS(x, y);
     return NError_Success;
 }
 
-NError tmrenderer_getcurbounds(unsigned char *startline, unsigned char *endline)
+NError tmrenderer_getcurbounds(uint8_t *startline, uint8_t *endline)
 {
     ENSURE_INIT;
     *startline = cursorcachedstate.startline;
@@ -49,7 +48,7 @@ NError tmrenderer_getcurbounds(unsigned char *startline, unsigned char *endline)
     return NError_Success;
 }
 
-NError tmrenderer_setcurbounds(unsigned char startline, unsigned char endline)
+NError tmrenderer_setcurbounds(uint8_t startline, uint8_t endline)
 {
     ENSURE_INIT;
     SETCURBOUNDS(startline, endline);

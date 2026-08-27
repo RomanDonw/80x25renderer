@@ -13,6 +13,8 @@
 
 #include "context.h"
 
+#define DEFAULTCURBLINKPERIOD 266666667
+
 struct cursorcachedstate_s
 {
     bool enabled, usecustomshape;

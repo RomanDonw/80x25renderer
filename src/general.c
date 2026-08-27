@@ -8,8 +8,8 @@
 #include "init.h"
 #include "cursor.h"
 #include "tmrenderer.h"
-#include "util.h"
 #include "text.h"
+#include "constants.h"
 
 NError tmrenderer_getshouldclose(bool *state)
 {
@@ -47,7 +47,7 @@ NError tmrenderer_pollevents(bool wait)
     return NError_Success;
 }
 
-NError tmrenderer_loadfont(const unsigned char *font)
+NError tmrenderer_loadfont(const uint8_t *font)
 {
     ENSURE_INIT;
     glBindTexture(GL_TEXTURE_2D, context.font);
@@ -65,7 +65,7 @@ NError tmrenderer_loadvvmem(const uint16_t *vvmem)
     return NError_Success;
 }
 
-NError tmrenderer_updatevvmem(unsigned char x, unsigned char y, unsigned char w, unsigned char h, const uint16_t *data)
+NError tmrenderer_updatevvmem(uint8_t x, uint8_t y, uint8_t w, uint8_t h, const uint16_t *data)
 {
     ENSURE_INIT;
     NError nerr = NError_Success;
@@ -78,7 +78,7 @@ NError tmrenderer_updatevvmem(unsigned char x, unsigned char y, unsigned char w,
     return nerr;
 }
 
-NError tmrenderer_loadcurcustomshape(const unsigned char *shape)
+NError tmrenderer_loadcurcustomshape(const uint8_t *shape)
 {
     ENSURE_INIT;
     glBindTexture(GL_TEXTURE_1D, context.curcustomshape);

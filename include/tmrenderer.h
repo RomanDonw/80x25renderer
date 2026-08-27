@@ -25,19 +25,19 @@ NError tmrenderer_setshouldclose(bool state);
 NError tmrenderer_render(void); // returns NError_Interrupted when user wants to close renderer`s window.
 NError tmrenderer_pollevents(bool wait);
 
-NError tmrenderer_loadfont(const unsigned char *font);
-NError tmrenderer_loadcurcustomshape(const unsigned char *shape);
+NError tmrenderer_loadfont(const uint8_t *font);
+NError tmrenderer_loadcurcustomshape(const uint8_t *shape);
 NError tmrenderer_loadcolors(const float *colors); // colors can be NULL.
 
 NError tmrenderer_loadvvmem(const uint16_t *vvmem);
-NError tmrenderer_updatevvmem(unsigned char x, unsigned char y, unsigned char w, unsigned char h, const uint16_t *data);
+NError tmrenderer_updatevvmem(uint8_t x, uint8_t y, uint8_t w, uint8_t h, const uint16_t *data);
 
 NError tmrenderer_getcurenabled(bool *state);
 NError tmrenderer_setcurenabled(bool state);
-NError tmrenderer_getcurpos(unsigned char *x, unsigned char *y);
-NError tmrenderer_setcurpos(unsigned char x, unsigned char y);
-NError tmrenderer_getcurbounds(unsigned char *startline, unsigned char *endline);
-NError tmrenderer_setcurbounds(unsigned char startline, unsigned char endline);
+NError tmrenderer_getcurpos(uint8_t *x, uint8_t *y);
+NError tmrenderer_setcurpos(uint8_t x, uint8_t y);
+NError tmrenderer_getcurbounds(uint8_t *startline, uint8_t *endline);
+NError tmrenderer_setcurbounds(uint8_t startline, uint8_t endline);
 NError tmrenderer_getcurusecustomshape(bool *state);
 NError tmrenderer_setcurusecustomshape(bool state);
 

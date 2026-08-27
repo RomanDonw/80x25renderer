@@ -9,7 +9,6 @@
 
 #include "context.h"
 #include "shaders.h"
-#include "util.h"
 #include "constants.h"
 #include "text.h"
 #include "cursor.h"
