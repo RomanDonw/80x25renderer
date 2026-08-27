@@ -26,7 +26,7 @@ NError tmrenderer_render(void); // returns NError_Interrupted when user wants to
 NError tmrenderer_pollevents(bool wait);
 
 NError tmrenderer_loadfont(const unsigned char *font);
-NError tmrenderer_loadcurshape(const unsigned char *curshape);
+NError tmrenderer_loadcurcustomshape(const unsigned char *shape);
 NError tmrenderer_loadcolors(const float *colors); // colors can be NULL.
 
 NError tmrenderer_loadvvmem(const uint16_t *vvmem);
@@ -38,13 +38,13 @@ NError tmrenderer_getcurpos(unsigned char *x, unsigned char *y);
 NError tmrenderer_setcurpos(unsigned char x, unsigned char y);
 NError tmrenderer_getcurbounds(unsigned char *startline, unsigned char *endline);
 NError tmrenderer_setcurbounds(unsigned char startline, unsigned char endline);
-NError tmrenderer_getcuruseshape(bool *state);
-NError tmrenderer_setcuruseshape(bool state);
+NError tmrenderer_getcurusecustomshape(bool *state);
+NError tmrenderer_setcurusecustomshape(bool state);
 
 NError tmrenderer_gettextblinkperiod(monotime_t *period);
-NError tmrenderer_settextblinkperiod(monotime_t period); // value 0 restores default value.
+NError tmrenderer_settextblinkperiod(monotime_t period); // value 0 restores the default value.
 NError tmrenderer_getcurblinkperiod(monotime_t *period);
-NError tmrenderer_setcurblinkperiod(monotime_t period); // value 0 restores default value.
+NError tmrenderer_setcurblinkperiod(monotime_t period); // value 0 restores the default value.
 
 // this functions uses GLFW key codes & states.
 

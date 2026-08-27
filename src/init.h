@@ -8,8 +8,6 @@
 #define INIT_H
 
 #include <libncore.h>
-#include <glad.h>
-#include "tmrenderer.h"
 
 #ifdef INIT_C
     #define INIT_H_EXTERN_QUALIFIER
@@ -18,23 +16,6 @@
 #endif
 
 extern INIT_H_EXTERN_QUALIFIER bool __libtmrenderer_inited;
-#define ENSURE_INIT { if (!__libtmrenderer_inited) return NError_NotInitialized; }
-
-// nullable context vars.
-struct ctxn_s
-{
-    GLFWwindow *window;
-    GLuint font, vvmem, curshape, prog;
-    TMRendererKeyInputCallback keycallback;
-    TMRendererCharInputCallback charcallback;
-};
-extern struct ctxn_s __libtmrenderer_ctxn;
-#define ctxn (__libtmrenderer_ctxn)
-
-// uniform vars.
-struct ctxu_s
-{ GLint colors, textblinkstate, curenabled, curpos, curbounds, curblinkstate, curuseshape; }
-extern INIT_H_EXTERN_QUALIFIER __libtmrenderere_ctxu;
-#define ctxu (__libtmrenderere_ctxu)
+#define ENSURE_INIT if (!__libtmrenderer_inited) return NError_NotInitialized;
 
 #endif

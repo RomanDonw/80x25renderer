@@ -4,23 +4,24 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+#include "context.h"
 #include "init.h"
+#include "cursor.h"
 #include "tmrenderer.h"
 #include "util.h"
 #include "text.h"
-#include "cursor.h"
 
 NError tmrenderer_getshouldclose(bool *state)
 {
     ENSURE_INIT;
-    *state = glfwWindowShouldClose(ctxn.window);
+    *state = glfwWindowShouldClose(context.window);
     return NError_Success;
 }
 
 NError tmrenderer_setshouldclose(bool state)
 {
     ENSURE_INIT;
-    glfwSetWindowShouldClose(ctxn.window, state);
+    glfwSetWindowShouldClose(context.window, state);
     return NError_Success;
 }
 
@@ -30,12 +31,12 @@ NError tmrenderer_render(void)
 
     monotime_t currtime;
     if (!monotime_now(&currtime)) return NError_Fault;
-    glUniform1ui(ctxu.curblinkstate, (bool)((currtime / v_curblinkperiod) % 2));
-    glUniform1ui(ctxu.textblinkstate, (bool)((currtime / v_textblinkperiod) % 2));
+    glUniform1ui(context.u_curblinkstate, (bool)((currtime / cursorcachedstate.blinkperiod) % 2));
+    glUniform1ui(context.u_textblinkstate, (bool)((currtime / v_textblinkperiod) % 2));
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
-    glfwSwapBuffers(ctxn.window);
+    glfwSwapBuffers(context.window);
     return NError_Success;
 }
 
@@ -49,7 +50,7 @@ NError tmrenderer_pollevents(bool wait)
 NError tmrenderer_loadfont(const unsigned char *font)
 {
     ENSURE_INIT;
-    glBindTexture(GL_TEXTURE_2D, ctxn.font);
+    glBindTexture(GL_TEXTURE_2D, context.font);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 16, 256, GL_RED_INTEGER, GL_UNSIGNED_BYTE, font);
     glBindTexture(GL_TEXTURE_2D, 0);
     return NError_Success;
@@ -58,7 +59,7 @@ NError tmrenderer_loadfont(const unsigned char *font)
 NError tmrenderer_loadvvmem(const uint16_t *vvmem)
 {
     ENSURE_INIT;
-    glBindTexture(GL_TEXTURE_2D, ctxn.vvmem);
+    glBindTexture(GL_TEXTURE_2D, context.vvmem);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 80, 25, GL_RG_INTEGER, GL_UNSIGNED_BYTE, vvmem);
     glBindTexture(GL_TEXTURE_2D, 0);
     return NError_Success;
@@ -68,7 +69,7 @@ NError tmrenderer_updatevvmem(unsigned char x, unsigned char y, unsigned char w,
 {
     ENSURE_INIT;
     NError nerr = NError_Success;
-    glBindTexture(GL_TEXTURE_2D, ctxn.vvmem);
+    glBindTexture(GL_TEXTURE_2D, context.vvmem);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RG_INTEGER, GL_UNSIGNED_BYTE, data);
     if (glGetError()) nerr = NError_Fault;
@@ -77,11 +78,11 @@ NError tmrenderer_updatevvmem(unsigned char x, unsigned char y, unsigned char w,
     return nerr;
 }
 
-NError tmrenderer_loadcurshape(const unsigned char *curshape)
+NError tmrenderer_loadcurcustomshape(const unsigned char *shape)
 {
     ENSURE_INIT;
-    glBindTexture(GL_TEXTURE_1D, ctxn.curshape);
-    glTexSubImage1D(GL_TEXTURE_1D, 0, 0, 16, GL_RED_INTEGER, GL_UNSIGNED_BYTE, curshape);
+    glBindTexture(GL_TEXTURE_1D, context.curcustomshape);
+    glTexSubImage1D(GL_TEXTURE_1D, 0, 0, 16, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shape);
     glBindTexture(GL_TEXTURE_1D, 0);
     return NError_Success;
 }
@@ -90,6 +91,6 @@ NError tmrenderer_loadcolors(const float *colors)
 {
     ENSURE_INIT;
     if (!colors) colors = CGAcolors;
-    glUniform3fv(ctxu.colors, 16, colors);
+    glUniform3fv(context.u_colors, 16, colors);
     return NError_Success;
 }

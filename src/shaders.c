@@ -27,9 +27,9 @@ const char *__libtmrenderer_fragmentshadersource =
 
     "uniform bool curenabled;\n"
     "uniform uvec2 curpos;\n"
-    "uniform bool curuseshape;\n"
+    "uniform bool curusecustomshape;\n"
     "uniform uvec2 curbounds;\n"
-    "uniform usampler1D curshape;\n"
+    "uniform usampler1D curcustomshape;\n"
     "uniform bool curblinkstate;\n"
 
     "uniform bool textblinkstate;\n"
@@ -50,8 +50,8 @@ const char *__libtmrenderer_fragmentshadersource =
         "uvec4 chardata = uvec4(texelFetch(vmem, ivec2(cell.x, cell.y), 0));\n"
         "uint glyphrow = uvec4(texelFetch(font, ivec2(fontrow, chardata.r & 0xFFu), 0)).r & 0xFFu;\n"
 
-        "bool curdispflag = curuseshape"
-            "? (((uvec4(texelFetch(curshape, int(fontrow), 0)).r & 0xFFu) & (1u << bitindex)) != 0u)"
+        "bool curdispflag = curusecustomshape"
+            "? (((uvec4(texelFetch(curcustomshape, int(fontrow), 0)).r & 0xFFu) & (1u << bitindex)) != 0u)"
             ": (curbounds.x > curbounds.y ? fontrow < curbounds.y || fontrow > curbounds.x : fontrow >= curbounds.x && fontrow <= curbounds.y)"
         ";\n"
         

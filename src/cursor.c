@@ -10,14 +10,12 @@
 #include "tmrenderer.h"
 #include "constants.h"
 
-bool __libtmrenderer_curenabled, __libtmrenderer_curuseshape;
-unsigned char __libtmrenderer_curx, __libtmrenderer_cury, __libtmrenderer_curstartline, __libtmrenderer_curendline;
-monotime_t __libtmrenderer_curblinkperiod;
+struct cursorcachedstate_s __libtmrenderer_cursorcachedstate;
 
 NError tmrenderer_getcurenabled(bool *state)
 {
     ENSURE_INIT;
-    *state = v_curenabled;
+    *state = cursorcachedstate.enabled;
     return NError_Success;
 }
 
@@ -31,8 +29,8 @@ NError tmrenderer_setcurenabled(bool state)
 NError tmrenderer_getcurpos(unsigned char *x, unsigned char *y)
 {
     ENSURE_INIT;
-    *x = v_curx;
-    *y = v_cury;
+    *x = cursorcachedstate.x;
+    *y = cursorcachedstate.y;
     return NError_Success;
 }
 
@@ -46,8 +44,8 @@ NError tmrenderer_setcurpos(unsigned char x, unsigned char y)
 NError tmrenderer_getcurbounds(unsigned char *startline, unsigned char *endline)
 {
     ENSURE_INIT;
-    *startline = v_curstartline;
-    *endline = v_curendline;
+    *startline = cursorcachedstate.startline;
+    *endline = cursorcachedstate.endline;
     return NError_Success;
 }
 
@@ -58,30 +56,30 @@ NError tmrenderer_setcurbounds(unsigned char startline, unsigned char endline)
     return NError_Success;
 }
 
-NError tmrenderer_getcuruseshape(bool *state)
+NError tmrenderer_getcurusecustomshape(bool *state)
 {
     ENSURE_INIT;
-    *state = v_curuseshape;
+    *state = cursorcachedstate.usecustomshape;
     return NError_Success;
 }
 
-NError tmrenderer_setcuruseshape(bool state)
+NError tmrenderer_setcurusecustomshape(bool state)
 {
     ENSURE_INIT;
-    SETCURUSESHAPE(state);
+    SETCURUSECUSTOMSHAPE(state);
     return NError_Success;
 }
 
 NError tmrenderer_getcurblinkperiod(monotime_t *period)
 {
     ENSURE_INIT;
-    *period = v_curblinkperiod;
+    *period = cursorcachedstate.blinkperiod;
     return NError_Success;
 }
 
 NError tmrenderer_setcurblinkperiod(monotime_t period)
 {
     ENSURE_INIT;
-    v_curblinkperiod = period ? period : DEFAULTCURBLINKPERIOD;
+    cursorcachedstate.blinkperiod = period ? period : DEFAULTCURBLINKPERIOD;
     return NError_Success;
 }

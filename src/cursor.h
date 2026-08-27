@@ -7,35 +7,37 @@
 #ifndef CURSOR_H
 #define CURSOR_H
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <libmonotime.h>
 
-extern bool __libtmrenderer_curenabled, __libtmrenderer_curuseshape;
-extern unsigned char __libtmrenderer_curx, __libtmrenderer_cury, __libtmrenderer_curstartline, __libtmrenderer_curendline;
-extern monotime_t __libtmrenderer_curblinkperiod;
-#define v_curenabled (__libtmrenderer_curenabled)
-#define v_curuseshape (__libtmrenderer_curuseshape)
-#define v_curx (__libtmrenderer_curx)
-#define v_cury (__libtmrenderer_cury)
-#define v_curstartline (__libtmrenderer_curstartline)
-#define v_curendline (__libtmrenderer_curendline)
-#define v_curblinkperiod (__libtmrenderer_curblinkperiod)
+#include "context.h"
+
+struct cursorcachedstate_s
+{
+    bool enabled, usecustomshape;
+    uint8_t x, y, startline, endline;
+    monotime_t blinkperiod;
+};
+extern struct cursorcachedstate_s __libtmrenderer_cursorcachedstate;
+#define cursorcachedstate (__libtmrenderer_cursorcachedstate)
 
 #define SETCURENABLED(state) \
-    v_curenabled = (state);\
-    glUniform1ui(ctxu.curenabled, (state));
+    cursorcachedstate.enabled = (state);\
+    glUniform1ui(context.u_curenabled, (bool)(state));
 
-#define SETCURPOS(x, y) \
-    v_curx = (x);\
-    v_cury = (y);\
-    glUniform2ui(ctxu.curpos, (x), (y));
+#define SETCURPOS(_x, _y) \
+    cursorcachedstate.x = (_x);\
+    cursorcachedstate.y = (_y);\
+    glUniform2ui(context.u_curpos, (uint8_t)(_x), (uint8_t)(_y));
 
-#define SETCURBOUNDS(startline, endline) \
-    v_curstartline = (startline);\
-    v_curendline = (endline);\
-    glUniform2ui(ctxu.curbounds, (startline), (endline));
+#define SETCURBOUNDS(_startline, _endline) \
+    cursorcachedstate.startline = (_startline);\
+    cursorcachedstate.endline = (_endline);\
+    glUniform2ui(context.u_curbounds, (uint8_t)(_startline), (uint8_t)(_endline));
 
-#define SETCURUSESHAPE(state) \
-    v_curuseshape = (state);\
-    glUniform1ui(ctxu.curuseshape, (state));
+#define SETCURUSECUSTOMSHAPE(state) \
+    cursorcachedstate.usecustomshape = (state);\
+    glUniform1ui(context.u_curusecustomshape, (bool)(state));
 
 #endif

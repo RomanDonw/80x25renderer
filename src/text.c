@@ -6,6 +6,7 @@
 
 #include "text.h"
 
+#include "context.h"
 #include "init.h"
 #include "constants.h"
 
@@ -28,7 +29,7 @@ NError tmrenderer_settextblinkperiod(monotime_t period)
 NError tmrenderer_getkeystate(int keycode, int *state)
 {
     ENSURE_INIT;
-    *state = glfwGetKey(ctxn.window, keycode);
+    *state = glfwGetKey(context.window, keycode);
     return NError_Success;
 }
 
@@ -42,13 +43,13 @@ NError tmrenderer_getkeyname(int keycode, const char **keyname)
 NError tmrenderer_setkeycallback(TMRendererKeyInputCallback callback)
 {
     ENSURE_INIT;
-    ctxn.keycallback = callback;
+    context.keycallback = callback;
     return NError_Success;
 }
 
 NError tmrenderer_setcharcallback(TMRendererCharInputCallback callback)
 {
     ENSURE_INIT;
-    ctxn.charcallback = callback;
+    context.charcallback = callback;
     return NError_Success;
 }
