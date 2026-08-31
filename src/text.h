@@ -11,7 +11,11 @@
 
 #define DEFAULTTEXTBLINKPERIOD 533333333
 
-extern monotime_t __libtmrenderer_textblinkperiod;
-#define v_textblinkperiod (__libtmrenderer_textblinkperiod)
+struct textstate_s
+{
+    monotime_t blinkperiod;
+};
+extern struct textstate_s __libtmrenderer_textstate;
+#define textstate (__libtmrenderer_textstate)
 
 #endif

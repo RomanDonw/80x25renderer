@@ -150,7 +150,7 @@ NError tmrenderer_init(const char *title)
     // ==========================================================================================
 
     cursorcachedstate.blinkperiod = DEFAULTCURBLINKPERIOD;
-    v_textblinkperiod = DEFAULTTEXTBLINKPERIOD;
+    textstate.blinkperiod = DEFAULTTEXTBLINKPERIOD;
 
     inited = true;
     return NError_Success;

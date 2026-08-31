@@ -10,19 +10,19 @@
 #include "init.h"
 #include "constants.h"
 
-monotime_t __libtmrenderer_textblinkperiod;
+struct textstate_s __libtmrenderer_textstate;
 
 NError tmrenderer_gettextblinkperiod(monotime_t *period)
 {
     ENSURE_INIT;
-    *period = v_textblinkperiod;
+    *period = textstate.blinkperiod;
     return NError_Success;
 }
 
 NError tmrenderer_settextblinkperiod(monotime_t period)
 {
     ENSURE_INIT;
-    v_textblinkperiod = period ? period : DEFAULTTEXTBLINKPERIOD;
+    textstate.blinkperiod = period ? period : DEFAULTTEXTBLINKPERIOD;
     return NError_Success;
 }
 

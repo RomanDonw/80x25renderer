@@ -32,7 +32,7 @@ NError tmrenderer_render(void)
     monotime_t currtime;
     if (!monotime_now(&currtime)) return NError_Fault;
     glUniform1ui(context.u_curblinkstate, (bool)((currtime / cursorcachedstate.blinkperiod) % 2));
-    glUniform1ui(context.u_textblinkstate, (bool)((currtime / v_textblinkperiod) % 2));
+    glUniform1ui(context.u_textblinkstate, (bool)((currtime / textstate.blinkperiod) % 2));
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
