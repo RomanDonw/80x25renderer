@@ -13,11 +13,7 @@
 struct context_s
 {
     GLFWwindow *window;
-    GLuint font, vvmem, curcustomshape, prog;
-    TMRendererKeyInputCallback keycallback;
-    TMRendererCharInputCallback charcallback;
-
-    GLint u_colors, u_textblinkstate, u_curenabled, u_curpos, u_curbounds, u_curblinkstate, u_curusecustomshape;
+    GLuint font, prog;
 };
 extern struct context_s __libtmrenderer_context;
 #define context (__libtmrenderer_context)

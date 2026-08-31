@@ -36,17 +36,18 @@ bool __libtmrenderer_inited = false;
 
 static bool isshadercompilationsuccessful(GLuint shader);
 static void applytexlinearfilts(GLenum target);
+
 static void onresize(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
 static void keycallback(GLFWwindow *window, int keycode, int scancode, int action, int mods)
-{ if (context.keycallback) context.keycallback(keycode, action, mods); }
-static void oninputchar(GLFWwindow *window, unsigned int codepoint) { if (context.charcallback) context.charcallback(codepoint); }
+{ if (textstate.keycallback) textstate.keycallback(keycode, action, mods); }
+static void oninputchar(GLFWwindow *window, unsigned int codepoint) { if (textstate.charcallback) textstate.charcallback(codepoint); }
 
 #define SETCTXUFIELDHELPER(fieldname, uniformstrname) (context.fieldname = glGetUniformLocation(context.prog, uniformstrname))
 
-#include <stdio.h>
-
 NError tmrenderer_init(const char *title)
 {
+    NError nerr = NError_Fault;
+
     if (inited) return NError_AlreadyInitialized;
     if (!monotime_now(NULL)) goto errorquit_afterinitglfw;
 
@@ -65,6 +66,9 @@ NError tmrenderer_init(const char *title)
     glfwSetWindowSizeLimits(context.window, MINWINWIDTH, MINWINHEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwSetFramebufferSizeCallback(context.window, onresize);
     glfwSetInputMode(context.window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    
+    textstate.charcallback = NULL;
+    textstate.keycallback = NULL;
     glfwSetKeyCallback(context.window, keycallback);
     glfwSetCharCallback(context.window, oninputchar);
     
@@ -149,16 +153,19 @@ NError tmrenderer_init(const char *title)
 
     // ==========================================================================================
 
+    textstate.vvmem = malloc(80 * 25 * 2);
+    if (!textstate.vvmem) { nerr = NError_MemoryAllocationFailed; goto errorquit_afterinitglfw; }
+
     cursorcachedstate.blinkperiod = DEFAULTCURBLINKPERIOD;
     textstate.blinkperiod = DEFAULTTEXTBLINKPERIOD;
 
     inited = true;
     return NError_Success;
-
+    
     errorquit_afterinitglfw:
         glfwTerminate();
     errorquit_generic:
-    return NError_Fault;
+    return nerr;
 }
 
 NError tmrenderer_quit(void)
@@ -166,6 +173,7 @@ NError tmrenderer_quit(void)
     if (!inited) return NError_NotInitialized;
 
     glfwTerminate();
+    free(textstate.vvmem);
 
     inited = false;
     return NError_Success;

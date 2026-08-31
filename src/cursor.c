@@ -82,3 +82,12 @@ NError tmrenderer_setcurblinkperiod(monotime_t period)
     cursorcachedstate.blinkperiod = period ? period : DEFAULTCURBLINKPERIOD;
     return NError_Success;
 }
+
+NError tmrenderer_loadcurcustomshape(const uint8_t *shape)
+{
+    ENSURE_INIT;
+    glBindTexture(GL_TEXTURE_1D, cursorcachedstate.curcustomshape);
+    glTexSubImage1D(GL_TEXTURE_1D, 0, 0, 16, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shape);
+    glBindTexture(GL_TEXTURE_1D, 0);
+    return NError_Success;
+}

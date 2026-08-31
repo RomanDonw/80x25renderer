@@ -22,15 +22,16 @@ NError tmrenderer_getshouldclose(bool *state);
 NError tmrenderer_setshouldclose(bool state);
 
 //NError tmrenderer_refresh(const uint16_t *vvmem);
-NError tmrenderer_render(void); // returns NError_Interrupted when user wants to close renderer`s window.
+NError tmrenderer_flush(void);
+NError tmrenderer_render(void);
 NError tmrenderer_pollevents(bool wait);
 
 NError tmrenderer_loadfont(const uint8_t *font);
 NError tmrenderer_loadcurcustomshape(const uint8_t *shape);
 NError tmrenderer_loadcolors(const float *colors); // colors can be NULL.
 
-NError tmrenderer_loadvvmem(const uint16_t *vvmem);
-NError tmrenderer_updatevvmem(uint8_t x, uint8_t y, uint8_t w, uint8_t h, const uint16_t *data);
+//NError tmrenderer_loadvvmem(const uint16_t *vvmem);
+//NError tmrenderer_updatevvmem(uint8_t x, uint8_t y, uint8_t w, uint8_t h, const uint16_t *data);
 
 NError tmrenderer_getcurenabled(bool *state);
 NError tmrenderer_setcurenabled(bool state);
