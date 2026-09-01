@@ -13,10 +13,9 @@ set(CMAKE_C_EXTENSIONS OFF)
 add_library(glad OBJECT "external/glad/glad.c")
 target_include_directories(glad PUBLIC "external/glad/")
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.h" "src/*.c")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/tmrenderer/*.h" "src/tmrenderer/*.c")
 add_library(${PROJECT_NAME} ${SOURCES})
 unset(SOURCES)
-
 target_include_directories(${PROJECT_NAME} PUBLIC "include/")
 
 find_package(glfw3 3.3 REQUIRED)
