@@ -15,7 +15,7 @@ target_include_directories(glad PUBLIC "external/glad/")
 
 # ==============================
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/tmrenderer/*.h" "src/tmrenderer/*.c")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.h" "src/*.c")
 add_library(${PROJECT_NAME} ${SOURCES})
 unset(SOURCES)
 target_include_directories(${PROJECT_NAME} PUBLIC "include/")
@@ -27,12 +27,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glfw libmonotime::monotime libncore
 
 # ==============================
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/textio/*.h" "src/textio/*.c")
-add_library(textio ${SOURCES})
-unset(SOURCES)
-target_include_directories(textio PUBLIC "include/")
-
-# ==============================
-
 add_executable(test0 "tests/0.c")
-target_link_libraries(test0 PRIVATE ${PROJECT_NAME} textio)
+target_link_libraries(test0 PRIVATE ${PROJECT_NAME})
