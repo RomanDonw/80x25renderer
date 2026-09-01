@@ -4,8 +4,8 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-#ifndef RENDERFUNCS_H
-#define RENDERFUNCS_H
+#ifndef TEXTIO_H
+#define TEXTIO_H
 
 #include <stddef.h>
 #include <stdint.h>

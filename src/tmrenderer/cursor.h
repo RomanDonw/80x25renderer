@@ -24,12 +24,7 @@ struct cursorstate_s
     GLuint tex_customshape;
     GLint u_enabled, u_pos, u_bounds, u_blinkstate, u_usecustomshape;
 };
-/*
-    !!!!!!!!!!!!!!!!!!!!!!!
-    !  TODO: RENAME THIS  !
-    !!!!!!!!!!!!!!!!!!!!!!!
-    (cursorstate to cursorstate)
-*/
+
 extern struct cursorstate_s __libtmrenderer_cursorstate;
 #define cursorstate (__libtmrenderer_cursorstate)
 

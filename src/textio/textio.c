@@ -4,7 +4,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-#include "renderfuncs.h"
+#include "textio.h"
 
 void vmem_clear(uint16_t *vmem, uint8_t attribute)
 {
