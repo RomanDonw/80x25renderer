@@ -21,17 +21,10 @@ NError tmrenderer_quit(void);
 NError tmrenderer_getshouldclose(bool *state);
 NError tmrenderer_setshouldclose(bool state);
 
-//NError tmrenderer_refresh(const uint16_t *vvmem);
+NError tmrenderer_getvvmemptr(uint16_t **vvmem);
 NError tmrenderer_flush(void);
 NError tmrenderer_render(void);
 NError tmrenderer_pollevents(bool wait);
-
-NError tmrenderer_loadfont(const uint8_t *font);
-NError tmrenderer_loadcurcustomshape(const uint8_t *shape);
-NError tmrenderer_loadcolors(const float *colors); // colors can be NULL.
-
-//NError tmrenderer_loadvvmem(const uint16_t *vvmem);
-//NError tmrenderer_updatevvmem(uint8_t x, uint8_t y, uint8_t w, uint8_t h, const uint16_t *data);
 
 NError tmrenderer_getcurenabled(bool *state);
 NError tmrenderer_setcurenabled(bool state);
@@ -41,16 +34,22 @@ NError tmrenderer_getcurbounds(uint8_t *startline, uint8_t *endline);
 NError tmrenderer_setcurbounds(uint8_t startline, uint8_t endline);
 NError tmrenderer_getcurusecustomshape(bool *state);
 NError tmrenderer_setcurusecustomshape(bool state);
+NError tmrenderer_loadcurcustomshape(const uint8_t *shape);
+NError tmrenderer_storecurcustomshape(uint8_t *shape);
 
 NError tmrenderer_gettextblinkperiod(monotime_t *period);
 NError tmrenderer_settextblinkperiod(monotime_t period); // value 0 restores the default value.
 NError tmrenderer_getcurblinkperiod(monotime_t *period);
 NError tmrenderer_setcurblinkperiod(monotime_t period); // value 0 restores the default value.
+NError tmrenderer_loadcolors(const float *colors); // colors can be NULL.
+NError tmrenderer_storecolors(float *colors);
+NError tmrenderer_loadfont(const uint8_t *font);
+NError tmrenderer_storefont(uint8_t *font);
 
 // this functions uses GLFW key codes & states.
 
-typedef void (*TMRendererKeyInputCallback)(int keycode, int action, int mods);
-typedef void (*TMRendererCharInputCallback)(unsigned int codepoint);
+typedef void (* TMRendererKeyInputCallback)(int keycode, int action, int mods);
+typedef void (* TMRendererCharInputCallback)(unsigned int codepoint);
 
 NError tmrenderer_getkeystate(int keycode, int *state);
 NError tmrenderer_getkeyname(int keycode, const char **keyname);

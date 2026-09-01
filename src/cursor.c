@@ -9,12 +9,12 @@
 #include "init.h"
 #include "tmrenderer.h"
 
-struct cursorcachedstate_s __libtmrenderer_cursorcachedstate;
+struct cursorstate_s __libtmrenderer_cursorstate;
 
 NError tmrenderer_getcurenabled(bool *state)
 {
     ENSURE_INIT;
-    *state = cursorcachedstate.enabled;
+    *state = cursorstate.enabled;
     return NError_Success;
 }
 
@@ -28,8 +28,8 @@ NError tmrenderer_setcurenabled(bool state)
 NError tmrenderer_getcurpos(uint8_t *x, uint8_t *y)
 {
     ENSURE_INIT;
-    *x = cursorcachedstate.x;
-    *y = cursorcachedstate.y;
+    *x = cursorstate.x;
+    *y = cursorstate.y;
     return NError_Success;
 }
 
@@ -43,8 +43,8 @@ NError tmrenderer_setcurpos(uint8_t x, uint8_t y)
 NError tmrenderer_getcurbounds(uint8_t *startline, uint8_t *endline)
 {
     ENSURE_INIT;
-    *startline = cursorcachedstate.startline;
-    *endline = cursorcachedstate.endline;
+    *startline = cursorstate.startline;
+    *endline = cursorstate.endline;
     return NError_Success;
 }
 
@@ -58,7 +58,7 @@ NError tmrenderer_setcurbounds(uint8_t startline, uint8_t endline)
 NError tmrenderer_getcurusecustomshape(bool *state)
 {
     ENSURE_INIT;
-    *state = cursorcachedstate.usecustomshape;
+    *state = cursorstate.usecustomshape;
     return NError_Success;
 }
 
@@ -72,22 +72,31 @@ NError tmrenderer_setcurusecustomshape(bool state)
 NError tmrenderer_getcurblinkperiod(monotime_t *period)
 {
     ENSURE_INIT;
-    *period = cursorcachedstate.blinkperiod;
+    *period = cursorstate.blinkperiod;
     return NError_Success;
 }
 
 NError tmrenderer_setcurblinkperiod(monotime_t period)
 {
     ENSURE_INIT;
-    cursorcachedstate.blinkperiod = period ? period : DEFAULTCURBLINKPERIOD;
+    cursorstate.blinkperiod = period ? period : DEFAULTCURBLINKPERIOD;
     return NError_Success;
 }
 
 NError tmrenderer_loadcurcustomshape(const uint8_t *shape)
 {
     ENSURE_INIT;
-    glBindTexture(GL_TEXTURE_1D, cursorcachedstate.curcustomshape);
+    glBindTexture(GL_TEXTURE_1D, cursorstate.tex_customshape);
     glTexSubImage1D(GL_TEXTURE_1D, 0, 0, 16, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shape);
+    glBindTexture(GL_TEXTURE_1D, 0);
+    return NError_Success;
+}
+
+NError tmrenderer_storecurcustomshape(uint8_t *shape)
+{
+    ENSURE_INIT;
+    glBindTexture(GL_TEXTURE_1D, cursorstate.tex_customshape);
+    glGetTexImage(GL_TEXTURE_1D, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shape);
     glBindTexture(GL_TEXTURE_1D, 0);
     return NError_Success;
 }

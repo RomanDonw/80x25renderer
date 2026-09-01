@@ -11,6 +11,13 @@
 
 struct textstate_s __libtmrenderer_textstate;
 
+NError tmrenderer_getvvmemptr(uint16_t **vvmem)
+{
+    ENSURE_INIT;
+    *vvmem = textstate.ram_vvmem;
+    return NError_Success;
+}
+
 NError tmrenderer_gettextblinkperiod(monotime_t *period)
 {
     ENSURE_INIT;
@@ -72,5 +79,30 @@ NError tmrenderer_loadcolors(const float *colors)
     ENSURE_INIT;
     if (!colors) colors = CGAcolors;
     glUniform3fv(textstate.u_colors, 16, colors);
+    return NError_Success;
+}
+
+NError tmrenderer_storecolors(float *colors)
+{
+    ENSURE_INIT;
+    glGetUniformfv(context.prog, textstate.u_colors, colors);
+    return NError_Success;
+}
+
+NError tmrenderer_loadfont(const uint8_t *font)
+{
+    ENSURE_INIT;
+    glBindTexture(GL_TEXTURE_2D, textstate.tex_font);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 16, 256, GL_RED_INTEGER, GL_UNSIGNED_BYTE, font);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return NError_Success;
+}
+
+NError tmrenderer_storefont(uint8_t *font)
+{
+    ENSURE_INIT;
+    glBindTexture(GL_TEXTURE_2D, textstate.tex_font);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, font);
+    glBindTexture(GL_TEXTURE_2D, 0);
     return NError_Success;
 }

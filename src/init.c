@@ -7,6 +7,8 @@
 #define INIT_C
 #include "init.h"
 
+#include <stdlib.h>
+
 #include "context.h"
 #include "shaders.h"
 #include "constants.h"
@@ -29,8 +31,6 @@ static const unsigned int indices[] =
     0, 2, 3
 };
 
-struct context_s __libtmrenderer_context;
-
 bool __libtmrenderer_inited = false;
 #define inited (__libtmrenderer_inited)
 
@@ -41,8 +41,6 @@ static void onresize(GLFWwindow *window, int width, int height) { glViewport(0, 
 static void keycallback(GLFWwindow *window, int keycode, int scancode, int action, int mods)
 { if (textstate.keycallback) textstate.keycallback(keycode, action, mods); }
 static void oninputchar(GLFWwindow *window, unsigned int codepoint) { if (textstate.charcallback) textstate.charcallback(codepoint); }
-
-#define SETCTXUFIELDHELPER(fieldname, uniformstrname) (context.fieldname = glGetUniformLocation(context.prog, uniformstrname))
 
 NError tmrenderer_init(const char *title)
 {
@@ -96,13 +94,13 @@ NError tmrenderer_init(const char *title)
         if (!result) goto errorquit_afterinitglfw;
     }
 
-    SETCTXUFIELDHELPER(u_curblinkstate, "curblinkstate");
-    SETCTXUFIELDHELPER(u_curenabled, "curenabled");
-    SETCTXUFIELDHELPER(u_curpos, "curpos");
-    SETCTXUFIELDHELPER(u_curbounds, "curbounds");
-    SETCTXUFIELDHELPER(u_curusecustomshape, "curuseshape");
-    SETCTXUFIELDHELPER(u_textblinkstate, "textblinkstate");
-    SETCTXUFIELDHELPER(u_colors, "colors");
+    textstate.u_blinkstate = glGetUniformLocation(context.prog, "textblinkstate");
+    textstate.u_colors = glGetUniformLocation(context.prog, "colors");
+    cursorstate.u_blinkstate = glGetUniformLocation(context.prog, "curblinkstate");
+    cursorstate.u_bounds = glGetUniformLocation(context.prog, "curbounds");
+    cursorstate.u_enabled = glGetUniformLocation(context.prog, "curenabled");
+    cursorstate.u_pos = glGetUniformLocation(context.prog, "curpos");
+    cursorstate.u_usecustomshape = glGetUniformLocation(context.prog, "curusecustomshape");
 
     // ==========================================================================================
 
@@ -110,7 +108,7 @@ NError tmrenderer_init(const char *title)
     SETCURPOS(0, 0);
     SETCURBOUNDS(14, 15);
     SETCURUSECUSTOMSHAPE(false);
-    glUniform3fv(context.u_colors, 16, CGAcolors);
+    glUniform3fv(textstate.u_colors, 16, CGAcolors);
     
     // ==========================================================================================
 
@@ -130,33 +128,33 @@ NError tmrenderer_init(const char *title)
 
     // ==========================================================================================
 
-    glGenTextures(1, &context.vvmem);
+    glGenTextures(1, &textstate.tex_vvmem);
     glUniform1i(glGetUniformLocation(context.prog, "vmem"), 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, context.vvmem);
+    glBindTexture(GL_TEXTURE_2D, textstate.tex_vvmem);
     applytexlinearfilts(GL_TEXTURE_2D);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8UI, 80, 25, 0, GL_RG_INTEGER, GL_UNSIGNED_BYTE, NULL);
 
-    glGenTextures(1, &context.font);
+    glGenTextures(1, &textstate.tex_font);
     glUniform1i(glGetUniformLocation(context.prog, "font"), 1);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, context.font);
+    glBindTexture(GL_TEXTURE_2D, textstate.tex_font);
     applytexlinearfilts(GL_TEXTURE_2D);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, 16, 256, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
     
-    glGenTextures(1, &context.curcustomshape);
+    glGenTextures(1, &cursorstate.tex_customshape);
     glUniform1i(glGetUniformLocation(context.prog, "curcustomshape"), 2);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_1D, context.curcustomshape);
+    glBindTexture(GL_TEXTURE_1D, cursorstate.tex_customshape);
     applytexlinearfilts(GL_TEXTURE_1D);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_R8UI, 16, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
 
     // ==========================================================================================
 
-    textstate.vvmem = malloc(80 * 25 * 2);
-    if (!textstate.vvmem) { nerr = NError_MemoryAllocationFailed; goto errorquit_afterinitglfw; }
+    textstate.ram_vvmem = malloc(80 * 25 * 2);
+    if (!textstate.ram_vvmem) { nerr = NError_MemoryAllocationFailed; goto errorquit_afterinitglfw; }
 
-    cursorcachedstate.blinkperiod = DEFAULTCURBLINKPERIOD;
+    cursorstate.blinkperiod = DEFAULTCURBLINKPERIOD;
     textstate.blinkperiod = DEFAULTTEXTBLINKPERIOD;
 
     inited = true;
@@ -173,7 +171,7 @@ NError tmrenderer_quit(void)
     if (!inited) return NError_NotInitialized;
 
     glfwTerminate();
-    free(textstate.vvmem);
+    free(textstate.ram_vvmem);
 
     inited = false;
     return NError_Success;

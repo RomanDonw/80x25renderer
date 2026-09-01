@@ -13,7 +13,7 @@
 struct context_s
 {
     GLFWwindow *window;
-    GLuint font, prog;
+    GLuint prog;
 };
 extern struct context_s __libtmrenderer_context;
 #define context (__libtmrenderer_context)
