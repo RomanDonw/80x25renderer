@@ -12,12 +12,10 @@
 
 static bool clrnext = false;
 static uint8_t attr = 7;
-static uint16_t *buff;
+static uint16_t *vram;
+
 static inline void clrscr(uint16_t v)
-{
-    for (uint16_t i = 0; i < 2000; i++) ((uint16_t *)buff)[i] = v;
-    tmrenderer_loadvvmem(buff);
-}
+{ for (uint16_t i = 0; i < 2000; i++) vram[i] = v; }
 
 static void charcallback(unsigned int codepoint)
 {
@@ -41,7 +39,7 @@ static void charcallback(unsigned int codepoint)
         }
         else
         {
-            tmrenderer_updatevvmem(x, y, 1, 1, &chr);
+            vram[y * 80 + x] = chr;
             if (++x > 79) { x = 0; y++; }
             tmrenderer_setcurpos(x, y);
         }
@@ -107,8 +105,7 @@ static void keycallback(int key, int action, int mods)
             if (!x) { y--; x = 79; }
             else x--;
             
-            uint16_t nullchr = attr << 8;
-            tmrenderer_updatevvmem(x, y, 1, 1, &nullchr);
+            vram[y * 80 + x] = attr << 8;
             tmrenderer_setcurpos(x, y);
         }
         else if (key == GLFW_KEY_ENTER)
@@ -151,16 +148,23 @@ int main(void)
 {
     if (tmrenderer_init("test") != NError_Success) { puts("failed to initialize renderer"); return 1; }
 
-    buff = malloc(4096);
-    if (!buff) { puts("memory allocation failed"); return 1; }
-
+    
     {
+        uint8_t *fontdata = malloc(4096);
+        if (!fontdata) { puts("memory allocation failed"); return 1; }
+
         FILE *f = fopen("res/cp866.f16", "r");
         if (!f) { puts("unable to load font from file \"res/cp866.f16\""); return 1; }
-        fread(buff, 1, 4096, f);
+        
+        if (!fread(fontdata, 4096, 1, f) || feof(f) || ferror(f))
+        { puts("error reading font from file \"res/cp866.f16\""); return 1; }
+
         fclose(f);
-        tmrenderer_loadfont((void *)buff);
+        tmrenderer_loadfont((void *)fontdata);
+        free(fontdata);
     }
+
+    if (tmrenderer_getvramptr(&vram) != NError_Success) { puts("unable to get pointer to VRAM."); return 1; }
 
     clrscr(attr << 8);
     tmrenderer_setcharcallback(charcallback);
@@ -172,10 +176,13 @@ int main(void)
         //(*((uint16_t *)buff))++;
         //tmrenderer_updatevvmem(0, 0, 1, 1, buff);
         
-        if ((tmrenderer_render() != NError_Success) || (tmrenderer_pollevents(false) != NError_Success)) break;
+        if (
+            (tmrenderer_flush() != NError_Success) ||
+            (tmrenderer_render() != NError_Success) ||
+            (tmrenderer_pollevents(false) != NError_Success)
+        ) break;
     }
-
-    free(buff);
+    
     tmrenderer_quit();
     return 0;
 }
