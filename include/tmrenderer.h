@@ -21,7 +21,7 @@ NError tmrenderer_quit(void);
 NError tmrenderer_getshouldclose(bool *state);
 NError tmrenderer_setshouldclose(bool state);
 
-NError tmrenderer_getvvmemptr(uint16_t **vvmem);
+NError tmrenderer_getvramptr(uint16_t **vram);
 NError tmrenderer_flush(void);
 NError tmrenderer_render(void);
 NError tmrenderer_pollevents(bool wait);

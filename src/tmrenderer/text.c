@@ -11,10 +11,10 @@
 
 struct textstate_s __libtmrenderer_textstate;
 
-NError tmrenderer_getvvmemptr(uint16_t **vvmem)
+NError tmrenderer_getvramptr(uint16_t **vram)
 {
     ENSURE_INIT;
-    *vvmem = textstate.ram_vvmem;
+    *vram = textstate.vram;
     return NError_Success;
 }
 

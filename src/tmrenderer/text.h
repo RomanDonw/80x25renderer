@@ -15,12 +15,12 @@
 
 struct textstate_s
 {
-    uint16_t *ram_vvmem;
+    uint16_t *vram;
     monotime_t blinkperiod;
     TMRendererKeyInputCallback keycallback;
     TMRendererCharInputCallback charcallback;
 
-    GLuint tex_vvmem, tex_font;
+    GLuint tex_vram, tex_font;
     GLint u_blinkstate, u_colors;
 };
 extern struct textstate_s __libtmrenderer_textstate;

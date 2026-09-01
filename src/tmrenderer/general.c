@@ -31,8 +31,8 @@ NError tmrenderer_flush(void)
 {
     ENSURE_INIT;
 
-    glBindTexture(GL_TEXTURE_2D, textstate.tex_vvmem);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 80, 25, GL_RG_INTEGER, GL_UNSIGNED_BYTE, textstate.ram_vvmem);
+    glBindTexture(GL_TEXTURE_2D, textstate.tex_vram);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 80, 25, GL_RG_INTEGER, GL_UNSIGNED_BYTE, textstate.vram);
     glBindTexture(GL_TEXTURE_2D, 0);
     
     glUniform2ui(cursorstate.u_bounds, cursorstate.startline, cursorstate.endline);

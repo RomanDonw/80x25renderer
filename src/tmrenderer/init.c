@@ -128,10 +128,10 @@ NError tmrenderer_init(const char *title)
 
     // ==========================================================================================
 
-    glGenTextures(1, &textstate.tex_vvmem);
+    glGenTextures(1, &textstate.tex_vram);
     glUniform1i(glGetUniformLocation(context.prog, "vmem"), 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textstate.tex_vvmem);
+    glBindTexture(GL_TEXTURE_2D, textstate.tex_vram);
     applytexlinearfilts(GL_TEXTURE_2D);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8UI, 80, 25, 0, GL_RG_INTEGER, GL_UNSIGNED_BYTE, NULL);
 
@@ -151,8 +151,8 @@ NError tmrenderer_init(const char *title)
 
     // ==========================================================================================
 
-    textstate.ram_vvmem = malloc(80 * 25 * 2);
-    if (!textstate.ram_vvmem) { nerr = NError_MemoryAllocationFailed; goto errorquit_afterinitglfw; }
+    textstate.vram = malloc(80 * 25 * 2);
+    if (!textstate.vram) { nerr = NError_MemoryAllocationFailed; goto errorquit_afterinitglfw; }
 
     cursorstate.blinkperiod = DEFAULTCURBLINKPERIOD;
     textstate.blinkperiod = DEFAULTTEXTBLINKPERIOD;
@@ -171,7 +171,7 @@ NError tmrenderer_quit(void)
     if (!inited) return NError_NotInitialized;
 
     glfwTerminate();
-    free(textstate.ram_vvmem);
+    free(textstate.vram);
 
     inited = false;
     return NError_Success;
