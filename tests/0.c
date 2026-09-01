@@ -97,6 +97,8 @@ static void keycallback(int key, int action, int mods)
                 }
                 return;
             }
+
+            if (key == GLFW_KEY_ESCAPE) { tmrenderer_setshouldclose(true); return; }
         }
  
         if (key == GLFW_KEY_BACKSPACE)
