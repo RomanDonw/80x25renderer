@@ -77,7 +77,7 @@ static void keycallback(int key, int action, int mods)
                 else
                 {
                     if (key == GLFW_KEY_B) attr ^= 0x80;
-                    else if (key == GLFW_KEY_C) clrnext = true;
+                    else if (key == GLFW_KEY_F) clrnext = true;
                     else if (key == GLFW_KEY_0) attr = attr & 0xF0;
                     else if (key == GLFW_KEY_1) attr = attr & 0xF0 | 1;
                     else if (key == GLFW_KEY_2) attr = attr & 0xF0 | 2;
@@ -94,6 +94,8 @@ static void keycallback(int key, int action, int mods)
                     else if (key == GLFW_KEY_D) attr = attr & 0xF0 | 13;
                     else if (key == GLFW_KEY_E) attr = attr & 0xF0 | 14;
                     else if (key == GLFW_KEY_F) attr = attr & 0xF0 | 15;
+                    else if (key == GLFW_KEY_P) vram[y * 80 + x] = (vram[y * 80 + x] & 0x00FF) | (attr << 8);
+                    else if (key == GLFW_KEY_G) attr = vram[y * 80 + x] >> 8;
                 }
                 return;
             }
