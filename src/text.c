@@ -110,7 +110,9 @@ NError tmrenderer_storefont(uint8_t *font)
 NError tmrenderer_getclipboardstring(const char **string)
 {
     ENSURE_INIT;
-    *string = glfwGetClipboardString(NULL);
+    register const char *ret = glfwGetClipboardString(NULL);
+    if (!ret) return NError_Fault;
+    *string = ret;
     return NError_Success;
 }
 
