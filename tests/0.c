@@ -92,9 +92,7 @@ static void keycallback(int key, int action, int mods)
                         const char *buff;
                         if (tmrenderer_getclipboardstring(&buff) == NError_Success && buff)
                             for (size_t i = 0; buff[i]; i++)
-                        {
-                            writeac(attr << 8 | ((unsigned char *)buff)[i]);
-                        }
+                                writeac(attr << 8 | ((unsigned char *)buff)[i]);
                     }
                 }
                 return;
