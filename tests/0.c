@@ -17,14 +17,21 @@ static uint16_t *vram;
 static inline void clrscr(uint16_t v)
 { for (uint16_t i = 0; i < 2000; i++) vram[i] = v; }
 
-static void charcallback(unsigned int codepoint)
+static void writeac(uint16_t chr)
 {
     unsigned char x, y;
     tmrenderer_getcurpos(&x, &y);
+    if (y >= 24 && x >= 79) return;
+
+    vram[y * 80 + x] = chr;
+    if (++x > 79) { x = 0; y++; }
+    tmrenderer_setcurpos(x, y);
+}
+
+static void charcallback(unsigned int codepoint)
+{
     if (codepoint > 31 && codepoint < 127 || codepoint >= 0x410 && codepoint <= 0x44F || codepoint == 0x401 || codepoint == 0x451)
-    {
-        if (y >= 24 && x >= 79) return;
-        
+    {   
         uint16_t chr = attr << 8;
         if (codepoint == 0x451) chr |= 0xF1;
         else if (codepoint == 0x401) chr |= 0xF0;
@@ -32,17 +39,8 @@ static void charcallback(unsigned int codepoint)
         else if (codepoint < 0x440) chr |= codepoint - 0x410 + 0x80;
         else chr |= codepoint - 0x440 + 0xE0;
         
-        if (clrnext)
-        {
-            clrscr(chr);
-            clrnext = false;
-        }
-        else
-        {
-            vram[y * 80 + x] = chr;
-            if (++x > 79) { x = 0; y++; }
-            tmrenderer_setcurpos(x, y);
-        }
+        if (clrnext) { clrscr(chr); clrnext = false; }
+        else writeac(chr);
     }
 }
 
@@ -54,13 +52,6 @@ static void keycallback(int key, int action, int mods)
         tmrenderer_getcurpos(&x, &y);
         if (action == GLFW_PRESS)
         {
-            /*
-            if (mods & GLFW_MOD_CONTROL && key == GLFW_KEY_B)
-            {
-                if (mods & GLFW_MOD_SHIFT) (use reading video memory segment here).
-                else attr ^= 0x80;
-            }
-            */
             if (mods & GLFW_MOD_CONTROL)
             {
                 if (mods & GLFW_MOD_SHIFT)
@@ -96,6 +87,15 @@ static void keycallback(int key, int action, int mods)
                     else if (key == GLFW_KEY_F) attr = attr & 0xF0 | 15;
                     else if (key == GLFW_KEY_P) vram[y * 80 + x] = (vram[y * 80 + x] & 0x00FF) | (attr << 8);
                     else if (key == GLFW_KEY_G) attr = vram[y * 80 + x] >> 8;
+                    else if (key == GLFW_KEY_V)
+                    {
+                        const char *buff;
+                        if (tmrenderer_getclipboardstring(&buff) == NError_Success && buff)
+                            for (size_t i = 0; buff[i]; i++)
+                        {
+                            writeac(attr << 8 | ((unsigned char *)buff)[i]);
+                        }
+                    }
                 }
                 return;
             }
