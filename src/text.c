@@ -106,3 +106,17 @@ NError tmrenderer_storefont(uint8_t *font)
     glBindTexture(GL_TEXTURE_2D, 0);
     return NError_Success;
 }
+
+NError tmrenderer_getclipboardstring(const char **string)
+{
+    ENSURE_INIT;
+    *string = glfwGetClipboardString(NULL);
+    return NError_Success;
+}
+
+NError tmrenderer_setclipboardstring(const char *string)
+{
+    ENSURE_INIT;
+    glfwSetClipboardString(NULL, string);
+    return NError_Success;
+}

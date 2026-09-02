@@ -45,6 +45,8 @@ NError tmrenderer_loadcolors(const float *colors); // colors can be NULL.
 NError tmrenderer_storecolors(float *colors);
 NError tmrenderer_loadfont(const uint8_t *font);
 NError tmrenderer_storefont(uint8_t *font);
+NError tmrenderer_getclipboardstring(const char **string); // works same as glfwGetClipboardString.
+NError tmrenderer_setclipboardstring(const char *string); // works same as glfwSetClipboardString.
 
 // this functions uses GLFW key codes & states.
 
