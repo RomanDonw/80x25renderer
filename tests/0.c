@@ -149,7 +149,6 @@ static void keycallback(int key, int action, int mods)
 int main(void)
 {
     if (tmrenderer_init("test") != NError_Success) { puts("failed to initialize renderer"); return 1; }
-
     
     {
         uint8_t *fontdata = malloc(4096);
@@ -175,9 +174,6 @@ int main(void)
     bool shouldclose;
     while (tmrenderer_getshouldclose(&shouldclose) == NError_Success && !shouldclose)
     {
-        //(*((uint16_t *)buff))++;
-        //tmrenderer_updatevvmem(0, 0, 1, 1, buff);
-        
         if (
             (tmrenderer_flush() != NError_Success) ||
             (tmrenderer_render() != NError_Success) ||
