@@ -68,7 +68,7 @@ static void keycallback(int key, int action, int mods)
                 else
                 {
                     if (key == GLFW_KEY_B) attr ^= 0x80;
-                    else if (key == GLFW_KEY_F) clrnext = true;
+                    else if (key == GLFW_KEY_L) clrnext = true;
                     else if (key == GLFW_KEY_0) attr = attr & 0xF0;
                     else if (key == GLFW_KEY_1) attr = attr & 0xF0 | 1;
                     else if (key == GLFW_KEY_2) attr = attr & 0xF0 | 2;
@@ -172,14 +172,12 @@ int main(void)
     tmrenderer_setkeycallback(keycallback);
 
     bool shouldclose;
-    while (tmrenderer_getshouldclose(&shouldclose) == NError_Success && !shouldclose)
-    {
-        if (
-            (tmrenderer_flush() != NError_Success) ||
-            (tmrenderer_render() != NError_Success) ||
-            (tmrenderer_pollevents(false) != NError_Success)
-        ) break;
-    }
+    while (
+        tmrenderer_getshouldclose(&shouldclose) == NError_Success && !shouldclose &&
+        tmrenderer_flush() == NError_Success &&
+        tmrenderer_render() == NError_Success &&
+        tmrenderer_pollevents(false) == NError_Success
+    );
     
     tmrenderer_quit();
     return 0;
