@@ -44,6 +44,9 @@ static void charcallback(unsigned int codepoint)
     }
 }
 
+bool cached_highbitblink = false;
+static void sethighbitblink(bool value);
+
 static void keycallback(int key, int action, int mods)
 {
     if (action == GLFW_PRESS || action == GLFW_REPEAT)
@@ -64,6 +67,14 @@ static void keycallback(int key, int action, int mods)
                     else if (key == GLFW_KEY_5) attr = attr & 0x8F | 0x50;
                     else if (key == GLFW_KEY_6) attr = attr & 0x8F | 0x60;
                     else if (key == GLFW_KEY_7) attr = attr & 0x8F | 0x70;
+                    else if (key == GLFW_KEY_8) attr = attr & 0x8F | 0x80;
+                    else if (key == GLFW_KEY_9) attr = attr & 0x8F | 0x90;
+                    else if (key == GLFW_KEY_A) attr = attr & 0x8F | 0xA0;
+                    else if (key == GLFW_KEY_B) attr = attr & 0x8F | 0xB0;
+                    else if (key == GLFW_KEY_C) attr = attr & 0x8F | 0xC0;
+                    else if (key == GLFW_KEY_D) attr = attr & 0x8F | 0xD0;
+                    else if (key == GLFW_KEY_E) attr = attr & 0x8F | 0xE0;
+                    else if (key == GLFW_KEY_F) attr = attr & 0x8F | 0xF0;
                 }
                 else
                 {
@@ -94,6 +105,7 @@ static void keycallback(int key, int action, int mods)
                             for (size_t i = 0; buff[i]; i++)
                                 writeac(attr << 8 | ((unsigned char *)buff)[i]);
                     }
+                    else if (key == GLFW_KEY_T) { cached_highbitblink = !cached_highbitblink; sethighbitblink(cached_highbitblink); }
                 }
                 return;
             }
@@ -136,7 +148,7 @@ static void keycallback(int key, int action, int mods)
             if ((x++) >= 79) return;
             tmrenderer_setcurpos(x, y);
         }
-        else if (key == GLFW_KEY_DELETE)
+        else if (key == GLFW_KEY_DELETE && clrnext)
         {
             clrscr(attr << 8);
             clrnext = false;
@@ -168,6 +180,7 @@ int main(void)
     if (tmrenderer_getvramptr(&vram) != NError_Success) { puts("unable to get pointer to VRAM."); return 1; }
 
     clrscr(attr << 8);
+    sethighbitblink(cached_highbitblink);
     tmrenderer_setcharcallback(charcallback);
     tmrenderer_setkeycallback(keycallback);
 
@@ -181,4 +194,11 @@ int main(void)
     
     tmrenderer_quit();
     return 0;
+}
+
+static void sethighbitblink(bool value)
+{
+    TMRendererOptions opts;
+    opts.highbitblink = value;
+    tmrenderer_setoptions(&opts);   
 }
