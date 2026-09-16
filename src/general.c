@@ -39,6 +39,7 @@ NError tmrenderer_flush(void)
     glUniform1ui(cursorstate.u_enabled, cursorstate.enabled);
     glUniform2ui(cursorstate.u_pos, cursorstate.x, cursorstate.y);
     glUniform1ui(cursorstate.u_usecustomshape, cursorstate.usecustomshape);
+    glUniform1ui(textstate.u_highbitblink, context.opts.highbitblink);
     
     return NError_Success;
 }
@@ -62,5 +63,19 @@ NError tmrenderer_pollevents(bool wait)
 {
     ENSURE_INIT;
     wait ? glfwWaitEvents() : glfwPollEvents();
+    return NError_Success;
+}
+
+NError tmrenderer_getoptions(TMRendererOptions *options)
+{
+    ENSURE_INIT;
+    *options = context.opts;
+    return NError_Success;
+}
+
+NError tmrenderer_setoptions(const TMRendererOptions *options)
+{
+    ENSURE_INIT;
+    context.opts = *options;
     return NError_Success;
 }

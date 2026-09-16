@@ -14,6 +14,7 @@ struct context_s
 {
     GLFWwindow *window;
     GLuint prog;
+    TMRendererOptions opts;
 };
 extern struct context_s __libtmrenderer_context;
 #define context (__libtmrenderer_context)

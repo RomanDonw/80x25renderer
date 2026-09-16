@@ -34,6 +34,7 @@ const char *__libtmrenderer_fragmentshadersource =
 
     "uniform bool textblinkstate;\n"
     "uniform vec3 colors[16];\n"
+    "uniform bool highbitblink;\n"
 
     "uniform usampler2D vmem;\n"
     "uniform usampler2D font;\n"
@@ -55,10 +56,10 @@ const char *__libtmrenderer_fragmentshadersource =
             ": (curbounds.x > curbounds.y ? fontrow < curbounds.y || fontrow > curbounds.x : fontrow >= curbounds.x && fontrow <= curbounds.y)"
         ";\n"
         
-        "FragColor = (uint(glyphrow) & (1u << uint(bitindex))) != 0u && !(textblinkstate && ((chardata.g & (1u << 7u)) != 0u)) ||"
+        "FragColor = (uint(glyphrow) & (1u << uint(bitindex))) != 0u && !(textblinkstate && ((chardata.g & (1u << 7u)) != 0u) && !highbitblink) ||"
                     "(curenabled && curblinkstate && cell == curpos && curdispflag)"
             "? vec4(colors[chardata.g & 0xFu], 1)"
-            ": vec4(colors[(chardata.g >> 4) & 7u], 1)"
+            ": vec4(colors[highbitblink ? chardata.g >> 4u : (chardata.g >> 4u) & 7u], 1)"
         ";\n"
     "}"
 ;

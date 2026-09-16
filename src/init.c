@@ -96,6 +96,7 @@ NError tmrenderer_init(const char *title)
 
     textstate.u_blinkstate = glGetUniformLocation(context.prog, "textblinkstate");
     textstate.u_colors = glGetUniformLocation(context.prog, "colors");
+    textstate.u_highbitblink = glGetUniformLocation(context.prog, "highbitblink");
     cursorstate.u_blinkstate = glGetUniformLocation(context.prog, "curblinkstate");
     cursorstate.u_bounds = glGetUniformLocation(context.prog, "curbounds");
     cursorstate.u_enabled = glGetUniformLocation(context.prog, "curenabled");
@@ -156,6 +157,8 @@ NError tmrenderer_init(const char *title)
 
     cursorstate.blinkperiod = DEFAULTCURBLINKPERIOD;
     textstate.blinkperiod = DEFAULTTEXTBLINKPERIOD;
+
+    context.opts = TMRENDEREROPTIONS_DEFAULTS;
 
     inited = true;
     return NError_Success;

@@ -21,7 +21,7 @@ struct textstate_s
     TMRendererCharInputCallback charcallback;
 
     GLuint tex_vram, tex_font;
-    GLint u_blinkstate, u_colors;
+    GLint u_blinkstate, u_colors, u_highbitblink;
 };
 extern struct textstate_s __libtmrenderer_textstate;
 #define textstate (__libtmrenderer_textstate)

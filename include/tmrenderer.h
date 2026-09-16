@@ -15,6 +15,15 @@
 
 // !!! FULL NOT THREAD-SAFE FOR NOW !!!
 
+struct TMRendererOptions
+{
+    bool highbitblink;
+} typedef TMRendererOptions;
+#define TMRENDEREROPTIONS_DEFAULTS (TMRendererOptions)\
+    {\
+        .highbitblink = true\
+    }
+
 NError tmrenderer_init(const char *title);
 NError tmrenderer_quit(void);
 
@@ -36,6 +45,8 @@ NError tmrenderer_getcurusecustomshape(bool *state);
 NError tmrenderer_setcurusecustomshape(bool state);
 NError tmrenderer_loadcurcustomshape(const uint8_t *shape);
 NError tmrenderer_storecurcustomshape(uint8_t *shape);
+NError tmrenderer_getoptions(TMRendererOptions *options);
+NError tmrenderer_setoptions(const TMRendererOptions *options);
 
 NError tmrenderer_gettextblinkperiod(monotime_t *period);
 NError tmrenderer_settextblinkperiod(monotime_t period); // value 0 restores the default value.
